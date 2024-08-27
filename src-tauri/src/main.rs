@@ -1,0 +1,105 @@
+// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+use std::fs;
+use std::io::Cursor;
+use std::fs::File;
+use sha2::{Sha256, Digest};
+use tokio::task;
+use tauri;
+mod game;
+mod files;
+use std::io::Read;
+use serde::Deserialize;
+use serde::Serialize;
+
+#[derive(Debug, Deserialize, Serialize)]
+struct FileInfo {
+    path: String,
+    file_name: String,
+}
+
+#[tauri::command]
+async fn run_game(app_handle: tauri::AppHandle) -> Result<(), String> { // note String instead of Error
+  println!("run_game");
+  game::add_os_secret_variable().await?;
+
+  let resource_dir = app_handle.path_resolver().resource_dir().expect("no resource dir");
+  
+  let mut game_dir = resource_dir.clone();
+  game_dir.push("game/ClassicUO");
+
+  game::run_client(game_dir).await?;
+
+  Ok(())
+}
+
+#[tauri::command]
+async fn download_files(files: Vec<FileInfo>, platform: String, app_handle: tauri::AppHandle) { // note String instead of Error
+  let mut handles = vec![];
+  let game_dir = files::get_game_folder_path_buf(app_handle);
+  for file in files {
+    // let dir_name = folder_name.clone();
+    let game_dir2 = game_dir.clone();
+    let platform2 = platform.clone();
+    let handle = task::spawn(async move {
+      match files::download_file(&file.file_name, &file.path, &game_dir2, &platform2).await {
+          Ok(_) => println!("Downloaded {}", file.file_name),
+          Err(e) => eprintln!("Error downloading {}: {}", file.file_name, e),
+      }
+    });
+    handles.push(handle);
+  }; 
+  
+  // Czekamy na zakończenie wszystkich zadań
+  for handle in handles {
+    handle.await.unwrap();
+}
+}
+
+#[tauri::command]
+fn calculate_sha256(file_path: String) -> Result<String, String> {
+    let mut file = match File::open(&file_path) {
+        Ok(file) => file,
+        Err(_) => return Err("Could not open file".to_string()),
+    };
+
+    let mut hasher = Sha256::new();
+    let mut buffer = [0; 4096];
+    
+    loop {
+        match file.read(&mut buffer) {
+            Ok(0) => break, // End of file
+            Ok(n) => hasher.update(&buffer[..n]),
+            Err(_) => return Err("Error reading file".to_string()),
+        }
+    }
+
+    Ok(format!("{:x}", hasher.finalize()))
+}
+
+
+
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![download_files, run_game, calculate_sha256])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+
+
+  // Ok(())
+
+  // if path.len() > 0 {
+  //   resource_dir.push(&path);
+  // }
+
+  // resource_dir.push(&file_name);
+  // fs::create_dir_all(resource_dir.parent().unwrap());
+  // println!("resource_dir: {}", resource_dir.to_string_lossy());
+  // let target = "http://localhost:8008/uo_files/get_file/".to_owned()+&file_name;
+  // let response = reqwest::get(target).await.map_err(|err| err.to_string())?.bytes().await.map_err(|err| err.to_string())?;
+  // let mut file = std::fs::File::create(resource_dir).map_err(|err| err.to_string())?;
+  // let mut content =  Cursor::new(response);
+  // println!("zapisuje na dysk plik {}", &file_name);
+  // std::io::copy(&mut content, &mut file);
