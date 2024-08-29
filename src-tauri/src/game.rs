@@ -3,6 +3,7 @@ use std::env;
 use std::process::{Command, Stdio};
 use std::io::{self, BufRead};
 use std::io::BufReader;
+use tauri::Manager;
 
 pub async fn add_os_secret_variable() -> Result<(), String> {
     env::set_var("TESTOWA", "1");
@@ -16,11 +17,33 @@ pub async fn remove_os_secret_variable() -> Result<(), String> {
     Ok(())
 }
 
-pub async fn run_client(game_dir: std::path::PathBuf) -> Result<(), String> {
+pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle) -> Result<(), String> {
     println!("game_dir: {}", game_dir.to_string_lossy());
     println!("startuje klienta");
+
+
     let mut client_path = game_dir.clone();
-    client_path.push("ClassicUO.bin.osx");
+    let os_type = env::consts::OS;
+
+    // Wykonaj różne akcje w zależności od systemu operacyjnego
+    match os_type {
+        "windows" => {
+            client_path.push("ClassicUO.exe");
+            // Tutaj możesz dodać kod specyficzny dla Windows
+        },
+        "macos" => {
+            client_path.push("ClassicUO.bin.osx");
+            // Tutaj możesz dodać kod specyficzny dla macOS
+        },
+        "linux" => {
+            client_path.push("ClassicUO");
+            // Tutaj możesz dodać kod specyficzny dla Linux
+        },
+        _ => {
+            println!("Nieznany system operacyjny.");
+            // Tutaj możesz dodać kod dla nieznanych systemów
+        }
+    }
     println!("client_path: {}", client_path.to_string_lossy());
 
     let args = ["-uopath", "../"];
@@ -31,6 +54,9 @@ pub async fn run_client(game_dir: std::path::PathBuf) -> Result<(), String> {
         .stderr(Stdio::piped())
         .spawn()
         .expect("Failed to execute command");
+    let main_window = app_handle.get_window("main").unwrap();
+    main_window.emit("updateStatus", "Gra uruchomiona").unwrap();
+    main_window.emit("clientState", true).unwrap();
 
     // Tworzymy BufReader do czytania wyjścia standardowego (stdout)
     if let Some(stdout) = child.stdout.take() {
@@ -39,7 +65,7 @@ pub async fn run_client(game_dir: std::path::PathBuf) -> Result<(), String> {
             println!("output: {}", line.expect("error reading line"));
         }
     }
-
+    
     // Tworzymy BufReader do czytania błędów standardowych (stderr)
     if let Some(stderr) = child.stderr.take() {
         let reader = BufReader::new(stderr);
@@ -51,6 +77,9 @@ pub async fn run_client(game_dir: std::path::PathBuf) -> Result<(), String> {
     // Czekamy na zakończenie procesu dziecka
     let status = child.wait().expect("blad procesu");
     println!("Process exited with status: {}", status);
+
+    main_window.emit("updateStatus", "").unwrap();
+    main_window.emit("clientState", false).unwrap();
 
 
 

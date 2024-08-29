@@ -17,6 +17,7 @@ serde_json = "1"
 reqwest = "0.12.4"
 tokio = "1.38.0"
 sha2 = "0.10.8" # Możesz sprawdzić najnowszą wersję na https://crates.io/crates/sha2
+tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 
 
 [features]

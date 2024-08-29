@@ -1,8 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::fs;
-use std::io::Cursor;
+use tauri::{Manager};
+
 use std::fs::File;
 use sha2::{Sha256, Digest};
 use tokio::task;
@@ -12,6 +12,12 @@ mod files;
 use std::io::Read;
 use serde::Deserialize;
 use serde::Serialize;
+
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+  args: Vec<String>,
+  cwd: String,
+}
 
 #[derive(Debug, Deserialize, Serialize)]
 struct FileInfo {
@@ -29,7 +35,7 @@ async fn run_game(app_handle: tauri::AppHandle) -> Result<(), String> { // note 
   let mut game_dir = resource_dir.clone();
   game_dir.push("game/ClassicUO");
 
-  game::run_client(game_dir).await?;
+  game::run_client(game_dir, app_handle).await?;
 
   Ok(())
 }
@@ -58,7 +64,7 @@ async fn download_files(files: Vec<FileInfo>, platform: String, app_handle: taur
 }
 
 #[tauri::command]
-fn calculate_sha256(file_path: String) -> Result<String, String> {
+async fn calculate_sha256(file_path: String) -> Result<String, String> {
     let mut file = match File::open(&file_path) {
         Ok(file) => file,
         Err(_) => return Err("Could not open file".to_string()),
@@ -82,6 +88,10 @@ fn calculate_sha256(file_path: String) -> Result<String, String> {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+          println!("{}, {argv:?}, {cwd}", app.package_info().name);
+          app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
+        }))
         .invoke_handler(tauri::generate_handler![download_files, run_game, calculate_sha256])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,18 +1,23 @@
 
 
 interface ProgressBarProps {
-    completed: Number,
+    completed: number,
+    status: string
 }
 
-function ProgressBar({ completed }: ProgressBarProps) {
-    return ( 
-        <div className="flex mt-20 mx-10 bg-[#e0e0de] h-8 rounded-lg">
+function ProgressBar({ completed, status }: ProgressBarProps) {
+    return (
+        <div className="flex items-center justify-center w-full px-10">
+            <div className="relative bg-progress-bg bg-auto bg-no-repeat h-14 w-full px-[1.35rem]" style={{ backgroundSize: "100% 100%"}}>
             <div
-                className="px-10 h-[100%] bg-[#76c7c0] w-0 rounded-lg"
-                style={{ width: `${completed}%` }}
+                className="bg-progress-fill bg-cover bg-no-repeat left-0 w-full h-full mt-2.5"
+                style={{ clipPath: `inset(0 ${(100 - completed)}% 0 0)`, backgroundSize: "100% 65%" }}
             ></div>
+            <p className="absolute text-center left-1/2 -translate-x-1/2 top-[0.67rem] text-[15px] text-gray-300">{status}</p>
         </div>
+        </div>
+        
     )
-
+    // clipPath: `inset(0 ${(100 - completed)}% 0 0)`
 }
 export default ProgressBar;

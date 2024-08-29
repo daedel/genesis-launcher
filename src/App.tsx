@@ -4,19 +4,24 @@ import "./output.css";
 import Banner from "./components/banner";
 import Nav from "./components/nav/Nav";
 import ProgressBar from "./components/progressBar";
+import PlayButton from "./components/playButton";
+import { useState } from "react";
+
+
 
 function App() {
 
 
-  // const [completed, setCompleted] = useState(0);
-  // setCompleted(50);
+  const [completed, setCompleted] = useState(0);
+  const [status, setStatus] = useState("");
 
   return (
-    <div className="flex flex-col text-center bg-[#191b28] h-screen">
+    <div className="flex flex-col text-center bg-[#191b28] h-screen w-full">
 
       <Banner/>
       <Nav/>
-      <ProgressBar completed={50}/>
+      <PlayButton updateProgress={setCompleted} updateStatus={setStatus}/>
+      <ProgressBar completed={completed} status={status}/>
 
     </div>
   );

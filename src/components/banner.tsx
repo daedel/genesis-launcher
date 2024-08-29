@@ -1,5 +1,4 @@
 import logo from "../assets/logo.webp";
-import PlayButton from "./playButton";
 
 
 function Banner() {
@@ -11,7 +10,7 @@ function Banner() {
                     <img src={logo} className="object-scale-down w-60" ></img>
                 </a>
             </div>
-            <PlayButton/>
+            
         </div>
     )
 }
