@@ -5,6 +5,9 @@ use std::io::{self, BufRead};
 use std::io::BufReader;
 use tauri::Manager;
 
+use crate::{events, tray};
+
+
 pub async fn add_os_secret_variable() -> Result<(), String> {
     env::set_var("TESTOWA", "1");
     println!("ustawiłem TESTOWA");
@@ -54,10 +57,13 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
         .stderr(Stdio::piped())
         .spawn()
         .expect("Failed to execute command");
-    let main_window = app_handle.get_window("main").unwrap();
-    main_window.emit("updateStatus", "Gra uruchomiona").unwrap();
-    main_window.emit("clientState", true).unwrap();
 
+    let main_window = app_handle.get_window("main").unwrap();
+    events::send_update_status_event("Gra uruchomiona", main_window.clone()).await.unwrap();
+    events::send_client_state_event(true, main_window.clone()).await.unwrap();
+    tray::hide_window(app_handle).await.unwrap();
+    // main_window.emit("updateStatus", "Gra uruchomiona").unwrap();
+    // main_window.emit("clientState", true).unwrap();
     // Tworzymy BufReader do czytania wyjścia standardowego (stdout)
     if let Some(stdout) = child.stdout.take() {
         let reader = BufReader::new(stdout);
@@ -80,7 +86,7 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
 
     main_window.emit("updateStatus", "").unwrap();
     main_window.emit("clientState", false).unwrap();
-
+    main_window.show().unwrap();
 
 
     println!("koniec procesu klienta");

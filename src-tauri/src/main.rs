@@ -1,14 +1,15 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{Manager};
-
+use tauri::{Manager, CustomMenuItem, SystemTray, SystemTrayMenu, SystemTrayMenuItem, SystemTrayEvent};
 use std::fs::File;
 use sha2::{Sha256, Digest};
 use tokio::task;
 use tauri;
 mod game;
 mod files;
+mod events;
+mod tray;
 use std::io::Read;
 use serde::Deserialize;
 use serde::Serialize;
@@ -87,14 +88,49 @@ async fn calculate_sha256(file_path: String) -> Result<String, String> {
 
 
 fn main() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-          println!("{}, {argv:?}, {cwd}", app.package_info().name);
-          app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
-        }))
-        .invoke_handler(tauri::generate_handler![download_files, run_game, calculate_sha256])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+  let quit = CustomMenuItem::new("quit".to_string(), "Quit");
+  let hide = CustomMenuItem::new("hide".to_string(), "Hide");
+  let show = CustomMenuItem::new("show".to_string(), "Show");
+
+  let tray_menu = SystemTrayMenu::new()
+    .add_item(quit)
+    .add_native_item(SystemTrayMenuItem::Separator)
+    .add_item(hide)
+    .add_item(show);
+
+
+  let system_tray = SystemTray::new()
+    .with_menu(tray_menu);
+
+  tauri::Builder::default()
+  .system_tray(system_tray)
+  .on_system_tray_event(|app, event| match event {
+    SystemTrayEvent::MenuItemClick { id, .. } => {
+      match id.as_str() {
+        "quit" => {
+          let window = app.get_window("main").unwrap();
+          window.close().unwrap();
+        },
+        "hide" => {
+          let main_window = app.get_window("main").unwrap();
+          main_window.hide().unwrap();
+        },
+        "show" => {
+          let main_window = app.get_window("main").unwrap();
+          main_window.show().unwrap();
+        }
+        _ => {}
+      }
+    }
+    _ => {}
+  })
+  .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+    println!("{}, {argv:?}, {cwd}", app.package_info().name);
+    app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
+  }))
+  .invoke_handler(tauri::generate_handler![download_files, run_game, calculate_sha256])
+  .run(tauri::generate_context!())
+  .expect("error while running tauri application");
 }
 
 
