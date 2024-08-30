@@ -21,30 +21,24 @@ pub async fn remove_os_secret_variable() -> Result<(), String> {
 }
 
 pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle) -> Result<(), String> {
-    println!("game_dir: {}", game_dir.to_string_lossy());
     println!("startuje klienta");
 
 
     let mut client_path = game_dir.clone();
     let os_type = env::consts::OS;
 
-    // Wykonaj różne akcje w zależności od systemu operacyjnego
     match os_type {
         "windows" => {
             client_path.push("ClassicUO.exe");
-            // Tutaj możesz dodać kod specyficzny dla Windows
         },
         "macos" => {
             client_path.push("ClassicUO.bin.osx");
-            // Tutaj możesz dodać kod specyficzny dla macOS
         },
         "linux" => {
             client_path.push("ClassicUO");
-            // Tutaj możesz dodać kod specyficzny dla Linux
         },
         _ => {
             println!("Nieznany system operacyjny.");
-            // Tutaj możesz dodać kod dla nieznanych systemów
         }
     }
     println!("client_path: {}", client_path.to_string_lossy());
@@ -62,9 +56,7 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     events::send_update_status_event("Gra uruchomiona", main_window.clone()).await.unwrap();
     events::send_client_state_event(true, main_window.clone()).await.unwrap();
     tray::hide_window(app_handle).await.unwrap();
-    // main_window.emit("updateStatus", "Gra uruchomiona").unwrap();
-    // main_window.emit("clientState", true).unwrap();
-    // Tworzymy BufReader do czytania wyjścia standardowego (stdout)
+   
     if let Some(stdout) = child.stdout.take() {
         let reader = BufReader::new(stdout);
         for line in reader.lines() {
@@ -72,7 +64,6 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
         }
     }
     
-    // Tworzymy BufReader do czytania błędów standardowych (stderr)
     if let Some(stderr) = child.stderr.take() {
         let reader = BufReader::new(stderr);
         for line in reader.lines() {
@@ -80,7 +71,6 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
         }
     }
 
-    // Czekamy na zakończenie procesu dziecka
     let status = child.wait().expect("blad procesu");
     println!("Process exited with status: {}", status);
 
