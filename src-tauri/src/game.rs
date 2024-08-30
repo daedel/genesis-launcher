@@ -1,11 +1,11 @@
 
 use std::env;
 use std::process::{Command, Stdio};
-use std::io::{self, BufRead};
-use std::io::BufReader;
+use std::io::{BufRead, BufReader};
 use tauri::Manager;
 
-use crate::{events, tray};
+use crate::http_client::ServerInfo;
+use crate::{events, http_client, tray};
 
 
 pub async fn add_os_secret_variable() -> Result<(), String> {
@@ -42,8 +42,20 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
         }
     }
     println!("client_path: {}", client_path.to_string_lossy());
+    let mut server_info = http_client::get_server_info().await.unwrap();
 
-    let args = ["-uopath", "../"];
+    #[cfg(debug_assertions)] {
+        server_info = ServerInfo {
+            server_ip: "localhost".to_string(),
+            server_port: "5001".to_string(),
+            test_server_ip: "localhost".to_string(),
+            test_server_port: "5001".to_string(),
+            allow_login: true,
+        }
+    }
+
+    let args: [&str; 6] = ["-uopath", "../", "-ip", server_info.server_ip.as_str(), "-port", server_info.server_port.as_str()];
+
 
     let mut child = Command::new(client_path)
         .args(&args)

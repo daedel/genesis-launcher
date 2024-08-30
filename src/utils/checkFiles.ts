@@ -41,8 +41,7 @@ class GameFileChecker {
     private async downloadFiles(filesToUpdate: FileInfo[]) {
         this.updateStatus("Wymagana aktualizacja plików. Pobieranie...");
         this.updateProgress(0);
-        const platform = await getPlatform();
-        await invoke("download_files", { files: filesToUpdate, platform: platform });
+        await invoke("download_files", { files: filesToUpdate});
         this.updateProgress(100);
         this.updateStatus("Gotowe");
     }

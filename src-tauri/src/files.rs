@@ -1,26 +1,19 @@
-use std::path::{Path, PathBuf};
-use std::io::{self, copy, Cursor};
-use std::fs::{self, File, Permissions};
-
-use reqwest::header::{HeaderMap, HeaderValue};
-use reqwest::{Error, Response};
+use std::io::Cursor;
+use std::fs::{self, Permissions};
+use std::path::PathBuf;
 use std::os::unix::fs::PermissionsExt; // Potrzebne na Unix/Linux
+use crate::http_client;
 
-pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf, platform: &String) -> Result<(), String> {
-
-    let url = build_url(file_name.to_string());
-
-    let client = reqwest::Client::new();
-    let mut headers = HeaderMap::new();
-    headers.insert("Platform", HeaderValue::from_str(platform.as_str()).unwrap());
+pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf) -> Result<(), String> {
+    let client = http_client::get_http_client();
+    let url: String = http_client::build_url(file_name.to_string());
 
     // Wysyłamy zapytanie GET na podany URL
-    let response = match client.get(url).headers(headers).send().await {
+    let response = match client.get(url).headers(http_client::get_common_headers()).send().await {
         Ok(resp) => resp,
         Err(err) => return Err(format!("Failed to send request: {}", err)),
     };
 
-        
     // Sprawdzamy status odpowiedzi
     if !response.status().is_success() {
         return Err(format!("HTTP error: {}", response.status()));
@@ -52,11 +45,11 @@ pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf, p
 
     let mut content2 =  Cursor::new(content);
     println!("zapisuje na dysk plik {}", &file_name);
-    std::io::copy(&mut content2, &mut dest);
 
-    // if let Err(err) = copy(&mut content.as_ref(), &mut dest) {
-    //     return Err(format!("Failed to write file: {}", err));
-    // }
+    if let Err(err) = std::io::copy(&mut content2, &mut dest) {
+
+        return Err(format!("Failed to write file: {}", err));
+    }
 
     let permissions = 0o755; // Uprawnienia do odczytu i wykonywania dla wszystkich
      
@@ -68,9 +61,6 @@ pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf, p
     Ok(())
 }
 
-fn build_url(file_name: String) -> String {
-    "http://localhost:8008/uo_files/get_file/?file_name=".to_owned()+&file_name
-}
 
 fn build_file_path(mut game_dir: PathBuf , file_name: String) -> PathBuf {
     game_dir.push(file_name);

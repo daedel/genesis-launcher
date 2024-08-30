@@ -28,9 +28,15 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
             setState(event.payload);
         });
 
+        const unlisten3 = listen<string>('console', (event) => {
+            console.log(event.payload);
+        });
+
         return () => {
             unlisten1.then(f => f());
             unlisten2.then(f => f());
+            unlisten3.then(f => f());
+
         };
     }
         , []);

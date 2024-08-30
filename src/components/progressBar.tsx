@@ -15,7 +15,7 @@ function ProgressBar({ completed, status }: ProgressBarProps) {
 
     return (
         <div className="flex items-center justify-center w-full px-10">
-            <div className="relative bg-progress-bg bg-auto bg-no-repeat h-14 w-full px-[1.35rem]" style={{ backgroundSize: "100% 100%"}}>
+            <div className="relative bg-progress-bg bg-auto bg-no-repeat h-14 w-full px-[1.22rem]" style={{ backgroundSize: "100% 100%"}}>
             <div
                 className="bg-progress-fill bg-cover bg-no-repeat left-0 w-full h-full mt-2.5"
                 style={{ clipPath: `inset(0 ${(100 - completed)}% 0 0)`, backgroundSize: "100% 65%" }}

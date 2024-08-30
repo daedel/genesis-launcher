@@ -1008,6 +1008,41 @@ video {
   padding-right: 1.35rem;
 }
 
+.px-\[1\.32rem\] {
+  padding-left: 1.32rem;
+  padding-right: 1.32rem;
+}
+
+.px-\[1\.30rem\] {
+  padding-left: 1.30rem;
+  padding-right: 1.30rem;
+}
+
+.px-\[1\.4rem\] {
+  padding-left: 1.4rem;
+  padding-right: 1.4rem;
+}
+
+.px-\[1\.9rem\] {
+  padding-left: 1.9rem;
+  padding-right: 1.9rem;
+}
+
+.px-\[1\.2rem\] {
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+}
+
+.px-\[1\.25rem\] {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.px-\[1\.22rem\] {
+  padding-left: 1.22rem;
+  padding-right: 1.22rem;
+}
+
 .pt-7 {
   padding-top: 1.75rem;
 }

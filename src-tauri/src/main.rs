@@ -6,13 +6,16 @@ use std::fs::File;
 use sha2::{Sha256, Digest};
 use tokio::task;
 use tauri;
+use std::io::Read;
+use serde::Deserialize;
+use serde::Serialize;
+
 mod game;
 mod files;
 mod events;
 mod tray;
-use std::io::Read;
-use serde::Deserialize;
-use serde::Serialize;
+mod platform_utils;
+mod http_client;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
@@ -42,15 +45,13 @@ async fn run_game(app_handle: tauri::AppHandle) -> Result<(), String> { // note 
 }
 
 #[tauri::command]
-async fn download_files(files: Vec<FileInfo>, platform: String, app_handle: tauri::AppHandle) { // note String instead of Error
+async fn download_files(files: Vec<FileInfo>, app_handle: tauri::AppHandle) { // note String instead of Error
   let mut handles = vec![];
-  let game_dir = files::get_game_folder_path_buf(app_handle);
+  let game_dir: std::path::PathBuf = files::get_game_folder_path_buf(app_handle);
   for file in files {
-    // let dir_name = folder_name.clone();
     let game_dir2 = game_dir.clone();
-    let platform2 = platform.clone();
     let handle = task::spawn(async move {
-      match files::download_file(&file.file_name, &file.path, &game_dir2, &platform2).await {
+      match files::download_file(&file.file_name, &file.path, &game_dir2).await {
           Ok(_) => println!("Downloaded {}", file.file_name),
           Err(e) => eprintln!("Error downloading {}: {}", file.file_name, e),
       }
