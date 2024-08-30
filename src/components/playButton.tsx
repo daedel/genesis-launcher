@@ -21,12 +21,10 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
             if (event.payload) {
                 updateStatus(event.payload);
             }
-            console.log('Received event:', event.payload);
             updateStatus(event.payload);
         });
 
         const unlisten2 = listen<boolean>('clientState', (event) => {
-            console.log('Received event:', event);
             setState(event.payload);
         });
 
@@ -40,7 +38,6 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
 
     const start_game = async () => {
         
-        console.log("clientState: ", clientState);
         if(clientState === true){
             updateStatus("Klient już uruchomiony!");
             setTimeout(() => {
@@ -53,9 +50,7 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
         setFileCheckerStatus(true)
         const fileChecker = new GameFileChecker(updateProgress, updateStatus);
         await fileChecker.start();
-        console.log("status: ", fileChecker.status);
         if (fileChecker.status === true) {
-            console.log("Pobieranie plików zakończone");
             updateStatus("Włączanie gry");
             await invoke("run_game");
         }

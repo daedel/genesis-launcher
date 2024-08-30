@@ -49,7 +49,6 @@ class GameFileChecker {
 
     private async getGameFilesToDownload() {
         const currentGameFiles = await this.getCurrentGameFiles();
-        console.log(currentGameFiles);
         const hashesInfo = await this.getFileHashes();
 
         let filesNeedsUpdate: FileInfo[] = [];
@@ -76,12 +75,10 @@ class GameFileChecker {
             await checkFile(fileName);
             progress += 1;
             const percentage = Math.trunc((progress / total_files) * 100);
-            console.log(percentage);
             if (percentage !== old_value) {
                 old_value = percentage;
                 this.updateProgress(percentage);
             }
-            console.log(progress);
         }
         return filesNeedsUpdate;
     }
@@ -122,7 +119,7 @@ class GameFileChecker {
 
     public async start() {
         const filesToDownload = await this.getFilesForUpdate();
-        console.log(filesToDownload);
+        // console.log(filesToDownload);
         if (filesToDownload.length === 0) {
             this.status = true;
         }
