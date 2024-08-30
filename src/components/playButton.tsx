@@ -14,7 +14,7 @@ interface ChildProps {
 
 function PlayButton({ updateProgress, updateStatus }: ChildProps) {
     const [clientState, setState] = useState(false);
-
+    const [fileCheckerStatus, setFileCheckerStatus] = useState(false);
     
     useEffect(() => {
         const unlisten1 = listen<string>('updateStatus', (event) => {
@@ -22,7 +22,7 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
                 updateStatus(event.payload);
             }
             console.log('Received event:', event.payload);
-            updateStatus("Gra uruchomiona");
+            updateStatus(event.payload);
         });
 
         const unlisten2 = listen<boolean>('clientState', (event) => {
@@ -39,6 +39,7 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
 
 
     const start_game = async () => {
+        
         console.log("clientState: ", clientState);
         if(clientState === true){
             updateStatus("Klient już uruchomiony!");
@@ -46,7 +47,10 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
                 updateStatus("Gra uruchomiona");
               }, 3000); // 5000 milisekund = 5 sekund
             return;
+        } else if (fileCheckerStatus === true) {
+            return;
         }
+        setFileCheckerStatus(true)
         const fileChecker = new GameFileChecker(updateProgress, updateStatus);
         await fileChecker.start();
         console.log("status: ", fileChecker.status);
@@ -55,6 +59,8 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
             updateStatus("Włączanie gry");
             await invoke("run_game");
         }
+        setFileCheckerStatus(false)
+
     }
 
     return (

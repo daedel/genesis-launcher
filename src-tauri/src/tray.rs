@@ -4,7 +4,6 @@ use tauri::Manager;
 pub async fn hide_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     let main_window = app_handle.get_window("main").unwrap();
     main_window.hide().unwrap();
-    update_tray_item("hide", app_handle).await.unwrap();
     Ok(())
 }
 
