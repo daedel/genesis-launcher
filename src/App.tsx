@@ -6,11 +6,11 @@ import Nav from "./components/nav/Nav";
 import ProgressBar from "./components/progressBar";
 import PlayButton from "./components/playButton";
 import { useState } from "react";
+import SettingsModal from "./components/settingsModal";
 
 
 
 function App() {
-
 
   const [completed, setCompleted] = useState(0);
   const [status, setStatus] = useState("");
@@ -22,6 +22,7 @@ function App() {
       <Nav/>
       <PlayButton updateProgress={setCompleted} updateStatus={setStatus}/>
       <ProgressBar completed={completed} status={status}/>
+      <SettingsModal />
 
     </div>
   );

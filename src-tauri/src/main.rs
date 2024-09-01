@@ -30,7 +30,7 @@ struct FileInfo {
 }
 
 #[tauri::command]
-async fn run_game(app_handle: tauri::AppHandle) -> Result<(), String> { // note String instead of Error
+async fn run_game(app_handle: tauri::AppHandle, test_server: bool) -> Result<(), String> { // note String instead of Error
   println!("run_game");
   game::add_os_secret_variable().await?;
 
@@ -39,7 +39,7 @@ async fn run_game(app_handle: tauri::AppHandle) -> Result<(), String> { // note 
   let mut game_dir = resource_dir.clone();
   game_dir.push("game/ClassicUO");
 
-  game::run_client(game_dir, app_handle).await?;
+  game::run_client(game_dir, app_handle, test_server).await?;
 
   Ok(())
 }

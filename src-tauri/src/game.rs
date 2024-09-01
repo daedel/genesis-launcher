@@ -20,7 +20,7 @@ pub async fn remove_os_secret_variable() -> Result<(), String> {
     Ok(())
 }
 
-pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle) -> Result<(), String> {
+pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle, test_server: bool) -> Result<(), String> {
     println!("startuje klienta");
 
 
@@ -49,12 +49,15 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
             server_ip: "localhost".to_string(),
             server_port: "5001".to_string(),
             test_server_ip: "localhost".to_string(),
-            test_server_port: "5001".to_string(),
+            test_server_port: "5002".to_string(),
             allow_login: true,
         }
     }
 
-    let args: [&str; 6] = ["-uopath", "../", "-ip", server_info.server_ip.as_str(), "-port", server_info.server_port.as_str()];
+    let server_ip = if test_server { server_info.test_server_ip } else { server_info.server_ip };
+    let server_port = if test_server { server_info.test_server_port } else { server_info.server_port };
+
+    let args: [&str; 6] = ["-uopath", "../", "-ip", server_ip.as_str(), "-port", server_port.as_str()];
 
 
     let mut child = Command::new(client_path)

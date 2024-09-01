@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/tauri'
 import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import GameFileChecker from "../utils/checkFiles";
+import readGameSettings from "../utils/settings";
 // write state expresion from react for file status
 
 
@@ -15,7 +16,7 @@ interface ChildProps {
 function PlayButton({ updateProgress, updateStatus }: ChildProps) {
     const [clientState, setState] = useState(false);
     const [fileCheckerStatus, setFileCheckerStatus] = useState(false);
-    
+
     useEffect(() => {
         const unlisten1 = listen<string>('updateStatus', (event) => {
             if (event.payload) {
@@ -43,36 +44,49 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
 
 
     const start_game = async () => {
-        
-        if(clientState === true){
+
+        if (clientState === true) {
             updateStatus("Klient już uruchomiony!");
             setTimeout(() => {
                 updateStatus("Gra uruchomiona");
-              }, 3000); // 5000 milisekund = 5 sekund
+            }, 3000); // 5000 milisekund = 5 sekund
             return;
         } else if (fileCheckerStatus === true) {
             return;
         }
         setFileCheckerStatus(true)
         const fileChecker = new GameFileChecker(updateProgress, updateStatus);
-        await fileChecker.start();
+        try {
+            await fileChecker.start();
+        } catch (error) {
+            console.error('Error checking files:', error);
+            updateStatus("Bład połączenia z serverem. Spróbuj ponownie później");
+        }
         if (fileChecker.status === true) {
             updateStatus("Włączanie gry");
-            await invoke("run_game");
+            const test_server = await readGameSettings("test_server");
+            console.log('test_server', test_server);
+            try {
+                await invoke("run_game", { testServer: test_server });
+            } catch (error) {
+                console.error('Error running game:', error);
+                updateStatus("Błąd podczas uruchamiania gry");
+                setFileCheckerStatus(false)
+            }
         }
         setFileCheckerStatus(false)
 
     }
 
     return (
-        <div className="block mt-5 mb">
+        <div className="block mt-5 mb z-0">
             <div className="flex items-center justify-center">
                 <div className="w-72">
-                <button type="submit" onClick={start_game} className="relative z-10 hover:scale-105 transition duration-500">
-                    <img src={buttonImage}></img>
-                    <div className="absolute w-[74%] h-[55%] -z-10 bg-play_bg m-auto top-0 bottom-0 left-0 right-0"></div>
-                    <div className="flex absolute justify-center items-center z-10 top-0 bottom-0 left-0 right-0 text-white font-medium font-['Barlow']">Graj</div>
-                </button>
+                    <button type="submit" onClick={start_game} className="relative z-10 hover:scale-105 transition duration-500">
+                        <img src={buttonImage}></img>
+                        <div className="absolute w-[74%] h-[55%] -z-10 bg-play_bg m-auto top-0 bottom-0 left-0 right-0"></div>
+                        <div className="flex absolute justify-center items-center top-0 bottom-0 left-0 right-0 text-white font-medium font-['Barlow']">Graj</div>
+                    </button>
                 </div>
             </div>
         </div>

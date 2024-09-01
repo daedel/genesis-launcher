@@ -20,7 +20,8 @@
         "all": true
       },
       "fs": {
-        "scope" : ["$RESOURCE/**"]
+        "all": true,
+        "scope" : ["$RESOURCE/**", "$APPLOCALDATA/app-settings.json"]
       },
       "shell": {
         "all": false,

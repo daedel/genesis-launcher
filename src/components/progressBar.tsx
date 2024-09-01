@@ -20,7 +20,7 @@ function ProgressBar({ completed, status }: ProgressBarProps) {
                 className="bg-progress-fill bg-cover bg-no-repeat left-0 w-full h-full mt-2.5"
                 style={{ clipPath: `inset(0 ${(100 - completed)}% 0 0)`, backgroundSize: "100% 65%" }}
             ></div>
-            <p className={"absolute text-center left-1/2 -translate-x-1/2 top-[0.67rem] text-[15px] " + color }>{status}</p>
+            <p className={"w-full absolute text-center left-1/2 -translate-x-1/2 top-[0.67rem] text-[15px] " + color }>{status}</p>
         </div>
         </div>
         
