@@ -1,6 +1,6 @@
 import { BaseDirectory, createDir, exists, FileEntry, readDir } from "@tauri-apps/api/fs";
 import { GAME_FOLDER } from "./consts";
-import { getHttpClient, getPlatform } from "./httpClient";
+import { getHttpClient } from "./httpClient";
 import { invoke } from "@tauri-apps/api";
 
 type StringDictionary = {

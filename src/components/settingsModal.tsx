@@ -1,6 +1,6 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import Modal from 'react-modal';
-import { readTextFile, writeTextFile, BaseDirectory, exists, createDir } from '@tauri-apps/api/fs';
+import { readTextFile, writeTextFile, BaseDirectory } from '@tauri-apps/api/fs';
 
 
 // Typy dla ustawień aplikacji
@@ -58,8 +58,9 @@ function SettingsModal(){
     };
 
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
+        console.log('checked', checked);
         setSettings((prevSettings) => ({
             ...prevSettings,
             [name]: type === 'checkbox' ? checked : value,

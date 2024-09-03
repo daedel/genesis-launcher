@@ -13,10 +13,9 @@ const getPlatform = async () => {
     return platform;
   }
 }
-
 const getHttpClient = async () => {
   const HTTP = axios.create({
-    baseURL: 'http://localhost:8008/',
+    baseURL: 'http://188.68.224.181:8008/',
     headers: {
       'Platform': await getPlatform()
     }

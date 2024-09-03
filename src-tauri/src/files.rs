@@ -1,8 +1,8 @@
 use std::io::Cursor;
-use std::fs::{self, Permissions};
+use std::fs::{self, File, Permissions};
 use std::path::PathBuf;
-use std::os::unix::fs::PermissionsExt; // Potrzebne na Unix/Linux
 use crate::http_client;
+
 
 pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf) -> Result<(), String> {
     let client = http_client::get_http_client();
@@ -51,13 +51,29 @@ pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf) -
         return Err(format!("Failed to write file: {}", err));
     }
 
-    let permissions = 0o755; // Uprawnienia do odczytu i wykonywania dla wszystkich
+    set_file_permissions(dest);
      
-    // Zmieniamy uprawnienia pliku
-    if let Err(err) = dest.set_permissions(Permissions::from_mode(permissions)) {
-        return Err(format!("Failed to set permissions: {}", err));
+
+    Ok(())
+}
+
+fn set_file_permissions(file: File) -> std::io::Result<()> {
+    let mut perms = file.metadata()?.permissions();
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt; // Potrzebne dla macOS i Linux
+        perms.set_mode(0o755); // Ustawia rw-r--r--
     }
 
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::prelude::*;
+        // Na Windows możemy ustawić uprawnienia za pomocą atrybutów pliku
+        perms.set_readonly(false);
+    }
+
+    file.set_permissions(perms)?;
     Ok(())
 }
 
