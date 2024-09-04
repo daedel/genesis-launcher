@@ -1,8 +1,9 @@
 use std::io::Cursor;
-use std::fs::{self, File, Permissions};
+use std::fs::{self, File};
 use std::path::PathBuf;
 use crate::http_client;
 
+// use std::os::unix::fs::PermissionsExt; // Potrzebne na Unix/Linux
 
 pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf) -> Result<(), String> {
     let client = http_client::get_http_client();
@@ -51,7 +52,13 @@ pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf) -
         return Err(format!("Failed to write file: {}", err));
     }
 
-    set_file_permissions(dest);
+    // let permissions = 0o755; // Uprawnienia do odczytu i wykonywania dla wszystkich
+     
+    // // Zmieniamy uprawnienia pliku
+    // if let Err(err) = dest.set_permissions(Permissions::from_mode(permissions)) {
+    //     return Err(format!("Failed to set permissions: {}", err));
+    // }
+    // set_file_permissions(dest);
      
 
     Ok(())

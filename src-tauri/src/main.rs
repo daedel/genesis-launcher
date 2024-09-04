@@ -45,24 +45,27 @@ async fn run_game(app_handle: tauri::AppHandle, test_server: bool) -> Result<(),
 }
 
 #[tauri::command]
-async fn download_files(files: Vec<FileInfo>, app_handle: tauri::AppHandle) { // note String instead of Error
-  let mut handles = vec![];
+async fn download_file(file_info: FileInfo, app_handle: tauri::AppHandle) { // note String instead of Error
   let game_dir: std::path::PathBuf = files::get_game_folder_path_buf(app_handle);
-  for file in files {
-    let game_dir2 = game_dir.clone();
-    let handle = task::spawn(async move {
-      match files::download_file(&file.file_name, &file.path, &game_dir2).await {
-          Ok(_) => println!("Downloaded {}", file.file_name),
-          Err(e) => eprintln!("Error downloading {}: {}", file.file_name, e),
-      }
-    });
-    handles.push(handle);
-  }; 
+  match files::download_file(&file_info.file_name, &file_info.path, &game_dir).await {
+      Ok(_) => println!("Downloaded {}", file_info.file_name),
+      Err(e) => eprintln!("Error downloading {}: {}", file_info.file_name, e),
+  }
+//   for file in files {
+//     let game_dir2 = game_dir.clone();
+//     let handle = task::spawn(async move {
+//       match files::download_file(&file.file_name, &file.path, &game_dir2).await {
+//           Ok(_) => println!("Downloaded {}", file.file_name),
+//           Err(e) => eprintln!("Error downloading {}: {}", file.file_name, e),
+//       }
+//     });
+//     handles.push(handle);
+//   }; 
   
-  // Czekamy na zakończenie wszystkich zadań
-  for handle in handles {
-    handle.await.unwrap();
-}
+//   // Czekamy na zakończenie wszystkich zadań
+//   for handle in handles {
+//     handle.await.unwrap();
+// }
 }
 
 #[tauri::command]
@@ -129,7 +132,7 @@ fn main() {
     println!("{}, {argv:?}, {cwd}", app.package_info().name);
     app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
   }))
-  .invoke_handler(tauri::generate_handler![download_files, run_game, calculate_sha256])
+  .invoke_handler(tauri::generate_handler![download_file, run_game, calculate_sha256])
   .run(tauri::generate_context!())
   .expect("error while running tauri application");
 }

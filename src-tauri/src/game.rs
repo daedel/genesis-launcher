@@ -59,13 +59,19 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
 
     let args: [&str; 6] = ["-uopath", "../", "-ip", server_ip.as_str(), "-port", server_port.as_str()];
 
-
-    let mut child = Command::new(client_path)
+    print!("args: {:?}", args);
+    let mut child = match Command::new(client_path)
         .args(&args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
-        .spawn()
-        .expect("Failed to execute command");
+        .spawn() {
+            Ok(child) => child,
+            Err(err) => {
+                println!("failed to start client with error: {}", err);
+                return Err(format!("Failed to start client: {}", err))
+            }
+        };
+
 
     let main_window = app_handle.get_window("main").unwrap();
     events::send_update_status_event("Gra uruchomiona", main_window.clone()).await.unwrap();

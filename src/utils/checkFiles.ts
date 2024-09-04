@@ -41,8 +41,20 @@ class GameFileChecker {
     private async downloadFiles(filesToUpdate: FileInfo[]) {
         this.updateStatus("Wymagana aktualizacja plików. Pobieranie...");
         this.updateProgress(0);
-        await invoke("download_files", { files: filesToUpdate});
-        this.updateProgress(100);
+        console.log(filesToUpdate);
+        let progress = 0;
+        const total_files = filesToUpdate.length
+        let old_value = 0;
+        for (const file of filesToUpdate) {
+            console.log(file);
+            await invoke("download_file", { fileInfo: file });
+            progress += 1;
+            const percentage = Math.trunc((progress / total_files) * 100);
+            if (percentage !== old_value) {
+                old_value = percentage;
+                this.updateProgress(percentage);
+            }
+        }
         this.updateStatus("Gotowe");
     }
 

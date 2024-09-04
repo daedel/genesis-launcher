@@ -10,8 +10,6 @@ function ProgressBar({ completed, status }: ProgressBarProps) {
     if (completed > 45) {
         color = 'text-black';
     }
-    console.log('completed: ', completed)
-    console.log('color: ', color)
 
     return (
         <div className="flex items-center justify-center w-full px-10">
