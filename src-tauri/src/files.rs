@@ -10,7 +10,7 @@ pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf) -
     let url: String = http_client::build_url(file_name.to_string());
 
     // Wysyłamy zapytanie GET na podany URL
-    let response = match client.get(url).headers(http_client::get_common_headers()).send().await {
+    let response = match client.get(url.clone()).headers(http_client::get_common_headers()).send().await {
         Ok(resp) => resp,
         Err(err) => return Err(format!("Failed to send request to url {}: error: {}", url, err)),
     };
