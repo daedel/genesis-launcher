@@ -3,6 +3,9 @@ use std::env;
 use std::process::{Command, Stdio};
 use std::io::{BufRead, BufReader};
 use tauri::Manager;
+use std::fs;
+use std::path::{Path, PathBuf};
+
 
 use crate::http_client::ServerInfo;
 use crate::{events, http_client, tray};
@@ -56,8 +59,15 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
 
     let server_ip = if test_server { server_info.test_server_ip } else { server_info.server_ip };
     let server_port = if test_server { server_info.test_server_port } else { server_info.server_port };
-
-    let args: [&str; 6] = ["-uopath", "../", "-ip", server_ip.as_str(), "-port", server_port.as_str()];
+    
+    let uo_relative_path = game_dir.join("..");
+    let absolute_path: PathBuf = match fs::canonicalize(&uo_relative_path) {
+        Ok(path) => path,
+        Err(e) => {
+            return Err(format!("Error getting absolute path: {}", e));
+        }
+    };
+    let args: [&str; 6] = ["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str()];
 
     print!("args: {:?}", args);
     let mut child = match Command::new(client_path)
