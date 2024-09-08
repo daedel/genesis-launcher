@@ -59,7 +59,7 @@ pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf) -
     // if let Err(err) = dest.set_permissions(Permissions::from_mode(permissions)) {
     //     return Err(format!("Failed to set permissions: {}", err));
     // }
-    // set_file_permissions(dest);
+    set_file_permissions(dest);
      
 
     Ok(())
