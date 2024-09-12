@@ -1,20 +1,25 @@
-use std::io::Cursor;
+use std::io::Write;
 use std::fs::{self, File};
 use std::path::PathBuf;
 use crate::http_client;
+use std::time::{Instant, Duration};
+use futures_util::StreamExt;
+use tauri::Manager;
+
 
 // use std::os::unix::fs::PermissionsExt; // Potrzebne na Unix/Linux
 
-pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf) -> Result<(), String> {
+pub async fn download_file(file_name: &str, path: &String, app_handle: tauri::AppHandle) -> Result<(), String> {
+    
     let client = http_client::get_http_client();
     let url: String = http_client::build_url(file_name.to_string());
+    let game_dir: std::path::PathBuf = get_game_folder_path_buf(app_handle.clone());
 
     // Wysyłamy zapytanie GET na podany URL
     let response = match client.get(url.clone()).headers(http_client::get_common_headers()).send().await {
         Ok(resp) => resp,
         Err(err) => return Err(format!("Failed to send request to url {}: error: {}", url, err)),
     };
-    
 
     // Sprawdzamy status odpowiedzi
     if !response.status().is_success() {
@@ -31,27 +36,56 @@ pub async fn download_file(file_name: &str, path: &String, game_dir: &PathBuf) -
             }
         }
     }
-     // Otwieramy plik do zapisu, obsługując błędy
+
     let mut dest = match fs::File::create(&file_path) {
         Ok(file) => file,
         Err(err) => {
             return Err(format!("Failed to create file: {}", err));
         }
     };
+    let window = app_handle.get_window("main").unwrap();
+    let mut stream = response.bytes_stream();
+    let mut downloaded: u64 = 0;
+    let mut last_instant = Instant::now();
+    let start_instant = Instant::now(); // Zapisz czas rozpoczęcia pobierania
 
-    // Zapisujemy zawartość odpowiedzi do pliku
-    let content = match response.bytes().await {
-        Ok(bytes) => bytes,
-        Err(err) => return Err(format!("Failed to read response body: {}", err)),
-    };
+    while let Some(chunk) = stream.next().await {
+        let chunk = chunk.map_err(|e| e.to_string())?; // Obsługa błędów podczas pobierania
+    
+        dest.write_all(&chunk).map_err(|e| e.to_string())?; // Zapisz dane do pliku
+        downloaded += chunk.len() as u64; // Zaktualizuj liczbę pobranych bajtów
+        
+        // Oblicz prędkość pobierania co sekundę
 
-    let mut content2 =  Cursor::new(content);
-    println!("zapisuje na dysk plik {}", &file_name);
+        let elapsed = last_instant.elapsed();
 
-    if let Err(err) = std::io::copy(&mut content2, &mut dest) {
-
-        return Err(format!("Failed to write file: {}", err));
+        if elapsed >= Duration::from_secs(1) {
+            let speed = (downloaded as f64 / elapsed.as_secs_f64()) / (1024.0 * 1024.0); // Prędkość w MB/s
+            last_instant = Instant::now();
+            
+            // Wyślij prędkość do frontendu
+            window.emit("download_progress", speed).map_err(|e| e.to_string())?;
+            println!("{}", speed);
+            downloaded = 0; // Zresetuj licznik pobranych bajtów dla kolejnej sekundy
+        }
     }
+
+    let total_elapsed = start_instant.elapsed();
+    if total_elapsed.as_secs_f64() > 0.0 && downloaded > 0 {
+        let final_speed = (downloaded as f64 / total_elapsed.as_secs_f64()) / (1024.0 * 1024.0); // MB/s
+        window.emit("download_progress", final_speed).map_err(|e| e.to_string())?;
+    }
+
+
+
+
+    // let mut content2 =  Cursor::new(content);
+    // println!("zapisuje na dysk plik {}", &file_name);
+
+    // if let Err(err) = std::io::copy(&mut content2, &mut dest) {
+
+    //     return Err(format!("Failed to write file: {}", err));
+    // }
 
     // let permissions = 0o755; // Uprawnienia do odczytu i wykonywania dla wszystkich
      

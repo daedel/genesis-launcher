@@ -4,7 +4,6 @@
 use tauri::{Manager, CustomMenuItem, SystemTray, SystemTrayMenu, SystemTrayMenuItem, SystemTrayEvent};
 use std::fs::File;
 use sha2::{Sha256, Digest};
-use tokio::task;
 use tauri;
 use std::io::Read;
 use serde::Deserialize;
@@ -46,8 +45,7 @@ async fn run_game(app_handle: tauri::AppHandle, test_server: bool) -> Result<(),
 
 #[tauri::command]
 async fn download_file(file_info: FileInfo, app_handle: tauri::AppHandle) { // note String instead of Error
-  let game_dir: std::path::PathBuf = files::get_game_folder_path_buf(app_handle);
-  match files::download_file(&file_info.file_name, &file_info.path, &game_dir).await {
+  match files::download_file(&file_info.file_name, &file_info.path, app_handle.clone()).await {
       Ok(_) => println!("Downloaded {}", file_info.file_name),
       Err(e) => eprintln!("Error downloading {}: {}", file_info.file_name, e),
   }

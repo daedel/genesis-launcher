@@ -4,7 +4,19 @@ import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import GameFileChecker from "../utils/checkFiles";
 import readGameSettings from "../utils/settings";
+import { BaseDirectory, createDir, exists } from "@tauri-apps/api/fs";
+import { GAME_FOLDER } from "../utils/consts";
 // write state expresion from react for file status
+
+enum ButtonStatus {
+    Install = "Instaluj",
+    Play = "Graj",
+    ClientRunning = "Klient już uruchomiony!",
+    GameRunning = "Gra uruchomiona",
+    GameStarting = "Włączanie gry",
+    ServerConnectionError = "Bład połączenia z serverem. Spróbuj ponownie później",
+    GameStartingError = "Bład podczas uruchamiania gry"
+}
 
 
 interface ChildProps {
@@ -13,16 +25,16 @@ interface ChildProps {
 }
 
 
-function PlayButton({ updateProgress, updateStatus }: ChildProps) {
+function PlayButton() {
     const [clientState, setState] = useState(false);
     const [fileCheckerStatus, setFileCheckerStatus] = useState(false);
+    const [completed, setCompleted] = useState(0);
+    const [status, setStatus] = useState("");
+    const [downloadInfo, setDownloadInfo] = useState("");
 
     useEffect(() => {
         const unlisten1 = listen<string>('updateStatus', (event) => {
-            if (event.payload) {
-                updateStatus(event.payload);
-            }
-            updateStatus(event.payload);
+            setStatus(event.payload);
         });
 
         const unlisten2 = listen<boolean>('clientState', (event) => {
@@ -33,6 +45,16 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
             console.log(event.payload);
         });
 
+        const initial_status = async () => {
+            try {
+                const status = await get_initial_button_status(); // Wywołanie funkcji asynchronicznej
+                setStatus(status); // Ustawienie wyniku jako wartość stanu
+            } catch (error) {
+                console.error("Błąd podczas pobierania danych:", error);
+            }
+        };
+
+        initial_status();
         return () => {
             unlisten1.then(f => f());
             unlisten2.then(f => f());
@@ -42,35 +64,44 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
     }
         , []);
 
+    const get_initial_button_status = async () => {
+        const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.Resource });
+        if (game_dir_exists === false) {
+            return ButtonStatus.Install
+        };
+
+        return ButtonStatus.Play;
+    }
 
     const start_game = async () => {
 
         if (clientState === true) {
-            updateStatus("Klient już uruchomiony!");
+            setStatus("Klient już uruchomiony!");
             setTimeout(() => {
-                updateStatus("Gra uruchomiona");
+                setStatus("Gra uruchomiona");
             }, 3000); // 5000 milisekund = 5 sekund
             return;
         } else if (fileCheckerStatus === true) {
             return;
         }
         setFileCheckerStatus(true)
-        const fileChecker = new GameFileChecker(updateProgress, updateStatus);
+        const fileChecker = new GameFileChecker(setCompleted, setStatus, setDownloadInfo);
         try {
             await fileChecker.start();
         } catch (error) {
             console.error('Error checking files:', error);
-            updateStatus("Bład połączenia z serverem. Spróbuj ponownie później");
+            setStatus("Bład połączenia z serverem. Spróbuj ponownie później");
+            setFileCheckerStatus(false);
         }
         if (fileChecker.status === true) {
-            updateStatus("Włączanie gry");
+            setStatus("Włączanie gry");
             const test_server = await readGameSettings("test_server");
             console.log('test_server', test_server);
             try {
                 await invoke("run_game", { testServer: test_server });
             } catch (error) {
                 console.error('Error running game:', error);
-                updateStatus("Błąd podczas uruchamiania gry");
+                setStatus("Błąd podczas uruchamiania gry");
                 setFileCheckerStatus(false)
             }
         }
@@ -84,8 +115,15 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
                 <div className="w-72">
                     <button type="submit" onClick={start_game} className="relative z-10 hover:scale-105 transition duration-500">
                         <img src={buttonImage}></img>
-                        <div className="absolute w-[74%] h-[55%] -z-10 bg-play_bg m-auto top-0 bottom-0 left-0 right-0"></div>
-                        <div className="flex absolute justify-center items-center top-0 bottom-0 left-0 right-0 text-white font-medium font-['Barlow']">Graj</div>
+                        <div className="absolute w-[74%] h-[55%] -z-10 bg-play_bg m-auto top-0 bottom-0 left-0 right-0">
+                            <div
+                                className="absolute inset-0 bg-blue-500"
+                                style={{ width: `${completed}%` }}
+                            ></div>
+                        </div>
+                        <div className="flex absolute justify-center items-center top-0 bottom-0 left-0 right-0 text-white font-medium font-['Barlow']">{status} {downloadInfo && <br></br>}{downloadInfo}</div>
+                        {/* {downloadInfo && <div className="flex absolute justify-center items-center top-0 bottom-0 left-0 right-0 text-white font-medium font-['Barlow']"><br></br>{downloadInfo}</div>} */}
+
                     </button>
                 </div>
             </div>
@@ -93,3 +131,14 @@ function PlayButton({ updateProgress, updateStatus }: ChildProps) {
     )
 }
 export default PlayButton;
+
+async function get_initial_status(): Promise<string> {
+    const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.Resource });
+    if (game_dir_exists === false) {
+        return ButtonStatus.Install
+    };
+
+    return "Graj";
+
+
+}

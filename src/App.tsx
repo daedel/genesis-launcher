@@ -3,27 +3,23 @@
 import "./output.css";
 import Banner from "./components/banner";
 import Nav from "./components/nav/Nav";
-import ProgressBar from "./components/progressBar";
 import PlayButton from "./components/playButton";
-import { useState } from "react";
 import SettingsModal from "./components/settingsModal";
+import StatusFrame from "./components/statusFrame";
 
 
 
 function App() {
-
-  const [completed, setCompleted] = useState(0);
-  const [status, setStatus] = useState("");
 
   return (
     <div className="flex flex-col text-center bg-[#191b28] h-screen w-full">
 
       <Banner/>
       <Nav/>
-      <PlayButton updateProgress={setCompleted} updateStatus={setStatus}/>
-      <ProgressBar completed={completed} status={status}/>
+      <PlayButton />
+      {/* <ProgressBar completed={completed} status={status}/> */}
       <SettingsModal />
-
+      <StatusFrame />
     </div>
   );
 }

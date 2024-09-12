@@ -1435,6 +1435,7 @@ dependencies = [
 name = "genesis-launcher"
 version = "0.0.0"
 dependencies = [
+ "futures-util",
  "reqwest 0.12.4",
  "serde",
  "serde_json",
@@ -3395,10 +3396,12 @@ dependencies = [
  "system-configuration",
  "tokio",
  "tokio-native-tls",
+ "tokio-util",
  "tower-service",
  "url",
  "wasm-bindgen",
  "wasm-bindgen-futures",
+ "wasm-streams",
  "web-sys",
  "winreg 0.52.0",
 ]

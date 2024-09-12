@@ -105,7 +105,7 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     let status = child.wait().expect("blad procesu");
     println!("Process exited with status: {}", status);
 
-    main_window.emit("updateStatus", "").unwrap();
+    main_window.emit("updateStatus", "Graj").unwrap();
     main_window.emit("clientState", false).unwrap();
     main_window.show().unwrap();
 

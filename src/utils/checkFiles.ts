@@ -2,6 +2,7 @@ import { BaseDirectory, createDir, exists, FileEntry, readDir } from "@tauri-app
 import { GAME_FOLDER } from "./consts";
 import { getHttpClient } from "./httpClient";
 import { invoke } from "@tauri-apps/api";
+import { emit } from "@tauri-apps/api/event";
 
 type StringDictionary = {
     [key: string]: string;
@@ -24,10 +25,12 @@ class GameFileChecker {
     updateProgress: (progress: number) => void;
     updateStatus: (status: string) => void;
     status: boolean = false;
+    updateDownloadInfo: (info: string) => void;
 
-    constructor(updateProgress: (progress: number) => void, updateStatus: (status: string) => void) {
+    constructor(updateProgress: (progress: number) => void, updateStatus: (status: string) => void, updateDownloadInfo: (info: string) => void) {
         this.updateProgress = updateProgress;
         this.updateStatus = updateStatus;
+        this.updateDownloadInfo = updateDownloadInfo;
     }
 
     private async getFilesForUpdate() {
@@ -41,27 +44,32 @@ class GameFileChecker {
     private async downloadFiles(filesToUpdate: FileInfo[]) {
         this.updateStatus("Wymagana aktualizacja plików. Pobieranie...");
         this.updateProgress(0);
-        console.log(filesToUpdate);
         let progress = 0;
         const total_files = filesToUpdate.length
         let old_value = 0;
         for (const file of filesToUpdate) {
-            console.log(file);
             await invoke("download_file", { fileInfo: file });
             progress += 1;
             const percentage = Math.trunc((progress / total_files) * 100);
             if (percentage !== old_value) {
                 old_value = percentage;
                 this.updateProgress(percentage);
+                this.updateStatus(percentage.toString() + "%");
+                this.updateDownloadInfo(progress + " z " + total_files);
             }
         }
         this.updateStatus("Gotowe");
+        this.updateDownloadInfo("");
+
+        await emit('download_progress', '');
+
+
     }
 
     private async getGameFilesToDownload() {
         const currentGameFiles = await this.getCurrentGameFiles();
         const hashesInfo = await this.getFileHashes();
-
+        console.log(hashesInfo);
         let filesNeedsUpdate: FileInfo[] = [];
 
         const checkFile = async (fileName: string) => {
