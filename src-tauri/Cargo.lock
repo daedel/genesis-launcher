@@ -1436,6 +1436,7 @@ name = "genesis-launcher"
 version = "0.0.0"
 dependencies = [
  "futures-util",
+ "percent-encoding",
  "reqwest 0.12.4",
  "serde",
  "serde_json",

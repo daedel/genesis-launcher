@@ -1,6 +1,8 @@
 
 use reqwest::{self, header::{HeaderMap, HeaderValue}};
 use serde::Deserialize;
+use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
+
 use crate::platform_utils;
 
 
@@ -25,8 +27,9 @@ pub fn get_common_headers() -> HeaderMap {
 }
 
 pub fn build_url(file_name: String) -> String {
-    get_api_url()+"uo_files/get_file/?file_name="+&file_name
-}
+    let encoded_file_name = utf8_percent_encode(&file_name, NON_ALPHANUMERIC).to_string();
+    get_api_url()+"uo_files/get_file/?file_name="+&encoded_file_name
+}   
 
 pub async fn get_server_info() -> Result<ServerInfo, String>{
     let http_client = get_http_client();

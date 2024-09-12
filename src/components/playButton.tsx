@@ -6,6 +6,8 @@ import GameFileChecker from "../utils/checkFiles";
 import readGameSettings from "../utils/settings";
 import { BaseDirectory, exists } from "@tauri-apps/api/fs";
 import { GAME_FOLDER } from "../utils/consts";
+import { useLoading } from "../contexts/Loading";
+
 // write state expresion from react for file status
 
 enum ButtonStatus {
@@ -24,7 +26,9 @@ function PlayButton() {
     const [completed, setCompleted] = useState(0);
     const [status, setStatus] = useState("");
     const [downloadInfo, setDownloadInfo] = useState("");
+    const { startLoading, stopLoading } = useLoading();
 
+    
     useEffect(() => {
         const unlisten1 = listen<string>('updateStatus', (event) => {
             setStatus(event.payload);
@@ -77,6 +81,7 @@ function PlayButton() {
         } else if (fileCheckerStatus === true) {
             return;
         }
+        startLoading();
         setFileCheckerStatus(true)
         const fileChecker = new GameFileChecker(setCompleted, setStatus, setDownloadInfo);
         try {
@@ -96,9 +101,10 @@ function PlayButton() {
                 console.error('Error running game:', error);
                 setStatus("Błąd podczas uruchamiania gry");
                 setFileCheckerStatus(false)
+                stopLoading();
             }
         }
-        setFileCheckerStatus(false)
+        setFileCheckerStatus(false);
 
     }
 

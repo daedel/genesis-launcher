@@ -1,0 +1,17 @@
+/* Spinner.css */
+.spinner {
+    font-size: 50px;
+    color: #555;
+    text-align: center;
+    margin-top: 20px;
+    opacity: 0;
+    transition: opacity 3s ease-in-out; /* Przejście dla fade-in i fade-out */
+  }
+  
+  .spinner.fade-in {
+    opacity: 1;
+  }
+  
+  .spinner.fade-out {
+    opacity: 0;
+  }
