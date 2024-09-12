@@ -7,7 +7,6 @@ use std::fs;
 use std::path::PathBuf;
 
 
-use crate::http_client::ServerInfo;
 use crate::{events, http_client, tray};
 
 
@@ -52,12 +51,9 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     let mut client_path = game_dir.clone();
     let os_type = env::consts::OS;
 
-    let mut args = ["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str(), "", ""];
-
     match os_type {
         "windows" => {
             client_path.push("ClassicUO.exe");
-            args = ["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str(), "-plugins", "RazorEnhanced/RazorEnhanced.exe"];
         },
         "macos" => {
             client_path.push("ClassicUO.bin.osx");
@@ -69,9 +65,17 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
             println!("Nieznany system operacyjny.");
         }
     }
+
+    // Ustal odpowiednie argumenty w zależności od systemu
+    let args = if cfg!(target_os = "windows") {
+        vec!["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str()]
+    } else {
+        vec!["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str(), "-plugins", "RazorEnhanced/RazorEnhanced.exe"]
+    };
+
     println!("client_path: {}", client_path.to_string_lossy());
 
-    print!("args: {:?}", args);
+    println!("args: {:?}", args);
     let mut child = match Command::new(client_path)
         .args(&args)
         .stdout(Stdio::piped())
@@ -84,7 +88,7 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
             }
         };
 
-
+    println!("uruchomiono klienta");
     let main_window = app_handle.get_window("main").unwrap();
     events::send_update_status_event("Gra uruchomiona", main_window.clone()).await.unwrap();
     events::send_client_state_event(true, main_window.clone()).await.unwrap();
