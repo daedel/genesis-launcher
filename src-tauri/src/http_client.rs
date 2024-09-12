@@ -1,7 +1,6 @@
 
 use reqwest::{self, header::{HeaderMap, HeaderValue}};
 use serde::Deserialize;
-use tauri::api::file;
 use crate::platform_utils;
 
 
@@ -43,7 +42,7 @@ pub async fn get_server_info() -> Result<ServerInfo, String>{
         return Err(format!("HTTP error: {}", response.status()));
     }
     let json_response = response.json::<ServerInfo>().await.unwrap();
-    Ok((json_response))
+    Ok(json_response)
 }
 
 fn get_api_url() -> String {

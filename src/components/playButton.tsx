@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import GameFileChecker from "../utils/checkFiles";
 import readGameSettings from "../utils/settings";
-import { BaseDirectory, createDir, exists } from "@tauri-apps/api/fs";
+import { BaseDirectory, exists } from "@tauri-apps/api/fs";
 import { GAME_FOLDER } from "../utils/consts";
 // write state expresion from react for file status
 
@@ -17,13 +17,6 @@ enum ButtonStatus {
     ServerConnectionError = "Bład połączenia z serverem. Spróbuj ponownie później",
     GameStartingError = "Bład podczas uruchamiania gry"
 }
-
-
-interface ChildProps {
-    updateProgress: (newProgress: number) => void;
-    updateStatus: (newStatus: string) => void;
-}
-
 
 function PlayButton() {
     const [clientState, setState] = useState(false);
@@ -131,14 +124,3 @@ function PlayButton() {
     )
 }
 export default PlayButton;
-
-async function get_initial_status(): Promise<string> {
-    const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.Resource });
-    if (game_dir_exists === false) {
-        return ButtonStatus.Install
-    };
-
-    return "Graj";
-
-
-}

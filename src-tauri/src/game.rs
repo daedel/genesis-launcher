@@ -4,7 +4,7 @@ use std::process::{Command, Stdio};
 use std::io::{BufRead, BufReader};
 use tauri::Manager;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 
 use crate::http_client::ServerInfo;
@@ -26,25 +26,6 @@ pub async fn remove_os_secret_variable() -> Result<(), String> {
 pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle, test_server: bool) -> Result<(), String> {
     println!("startuje klienta");
 
-
-    let mut client_path = game_dir.clone();
-    let os_type = env::consts::OS;
-
-    match os_type {
-        "windows" => {
-            client_path.push("ClassicUO.exe");
-        },
-        "macos" => {
-            client_path.push("ClassicUO.bin.osx");
-        },
-        "linux" => {
-            client_path.push("ClassicUO");
-        },
-        _ => {
-            println!("Nieznany system operacyjny.");
-        }
-    }
-    println!("client_path: {}", client_path.to_string_lossy());
     let mut server_info = http_client::get_server_info().await.unwrap();
 
     #[cfg(debug_assertions)] {
@@ -67,7 +48,28 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
             return Err(format!("Error getting absolute path: {}", e));
         }
     };
-    let args: [&str; 6] = ["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str()];
+    
+    let mut client_path = game_dir.clone();
+    let os_type = env::consts::OS;
+
+    let mut args = ["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str(), "", ""];
+
+    match os_type {
+        "windows" => {
+            client_path.push("ClassicUO.exe");
+            args = ["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str(), "-plugins", "RazorEnhanced/RazorEnhanced.exe"];
+        },
+        "macos" => {
+            client_path.push("ClassicUO.bin.osx");
+        },
+        "linux" => {
+            client_path.push("ClassicUO");
+        },
+        _ => {
+            println!("Nieznany system operacyjny.");
+        }
+    }
+    println!("client_path: {}", client_path.to_string_lossy());
 
     print!("args: {:?}", args);
     let mut child = match Command::new(client_path)
