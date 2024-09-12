@@ -5,8 +5,7 @@ use std::io::{BufRead, BufReader};
 use tauri::Manager;
 use std::fs;
 use std::path::PathBuf;
-
-
+use crate::http_client::ServerInfo;
 use crate::{events, http_client, tray};
 
 
