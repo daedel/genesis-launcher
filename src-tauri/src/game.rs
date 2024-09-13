@@ -39,20 +39,24 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     let server_ip = if test_server { server_info.test_server_ip } else { server_info.server_ip };
     let server_port = if test_server { server_info.test_server_port } else { server_info.server_port };
     
-    let uo_relative_path = game_dir.join("..");
-    let absolute_path: PathBuf = match fs::canonicalize(&uo_relative_path) {
-        Ok(path) => path,
-        Err(e) => {
-            return Err(format!("Error getting absolute path: {}", e));
-        }
-    };
+    let uo_path = game_dir.join("..");
+    // let absolute_path: PathBuf = match fs::canonicalize(&uo_relative_path) {
+    //     Ok(path) => path,
+    //     Err(e) => {
+    //         return Err(format!("Error getting absolute path: {}", e));
+    //     }
+    // };
     
     let mut client_path = game_dir.clone();
     let os_type = env::consts::OS;
 
+    let mut args = vec!["-uopath", uo_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str()];
+
     match os_type {
         "windows" => {
             client_path.push("ClassicUO.exe");
+            args.push("-plugins");
+            args.push("RazorEnhanced/RazorEnhanced.exe");
         },
         "macos" => {
             client_path.push("ClassicUO.bin.osx");
@@ -64,13 +68,6 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
             println!("Nieznany system operacyjny.");
         }
     }
-
-    // Ustal odpowiednie argumenty w zależności od systemu
-    let args = if cfg!(target_os = "windows") {
-        vec!["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str()]
-    } else {
-        vec!["-uopath", absolute_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str(), "-plugins", "RazorEnhanced/RazorEnhanced.exe"]
-    };
 
     println!("client_path: {}", client_path.to_string_lossy());
 
