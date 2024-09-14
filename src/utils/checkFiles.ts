@@ -65,7 +65,7 @@ class GameFileChecker {
     private async getGameFilesToDownload() {
         const currentGameFiles = await this.getCurrentGameFiles();
         const hashesInfo = await this.getFileHashes();
-        console.log(hashesInfo);
+        console.log("currentGameFiles", currentGameFiles);
         // console.log(hashesInfo);
 
         let filesNeedsUpdate: FileInfo[] = [];
