@@ -23,6 +23,15 @@ pub async fn remove_os_secret_variable() -> Result<(), String> {
     Ok(())
 }
 
+fn normalize_path(path: PathBuf) -> PathBuf {
+    let path_str = path.to_string_lossy(); // Zamienia PathBuf na String
+    if path_str.starts_with(r"\\?\") {
+        PathBuf::from(&path_str[4..]) // Usuwa \\?\ z początku
+    } else {
+        path
+    }
+}
+
 pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle, test_server: bool) -> Result<(), String> {
     println!("startuje klienta");
 
@@ -57,8 +66,10 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     match os_type {
         "windows" => {
             let razor_path = client_path.join("Data").join("Plugins").join("RazorEnhanced").join("RazorEnhanced.exe");
+            let normalized_razor_path = normalize_path(razor_path);
+
             args.push("-plugins".to_string());
-            args.push(razor_path.to_str().unwrap().to_string());
+            args.push(normalized_razor_path.to_str().unwrap().to_string());
             client_path.push("ClassicUO.exe");
         },  
         "macos" => {
