@@ -56,10 +56,10 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
 
     match os_type {
         "windows" => {
-            client_path.push("ClassicUO.exe");
-            args.push("-plugins".to_string());
             let razor_path = client_path.join("Data").join("Plugins").join("RazorEnhanced").join("RazorEnhanced.exe");
+            args.push("-plugins".to_string());
             args.push(razor_path.to_str().unwrap().to_string());
+            client_path.push("ClassicUO.exe");
         },  
         "macos" => {
             client_path.push("ClassicUO.bin.osx");
