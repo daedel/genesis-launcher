@@ -20,6 +20,7 @@ sha2 = "0.10.8" # Możesz sprawdzić najnowszą wersję na https://crates.io/cra
 tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 futures-util = "0.3"
 percent-encoding = "2.3.1"
+chrono = "0.4.38"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

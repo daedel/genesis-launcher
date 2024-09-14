@@ -15,6 +15,7 @@ mod events;
 mod tray;
 mod platform_utils;
 mod http_client;
+pub mod logging;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {

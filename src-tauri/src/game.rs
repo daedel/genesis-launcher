@@ -1,14 +1,13 @@
 
 use std::env;
 use std::process::{Command, Stdio};
-use std::io::{BufRead, BufReader};
-use std::fs::File;
+use std::io::{self, BufReader, BufRead};
 
 use tauri::Manager;
 use std::path::PathBuf;
 use crate::http_client::ServerInfo;
 use crate::{events, http_client, tray};
-use std::io::{self};
+use crate::logging::{enable_file_logging, log, log_debug, log_to_file_only};
 
 
 pub async fn add_os_secret_variable() -> Result<(), String> {
@@ -33,11 +32,11 @@ fn normalize_path(path: PathBuf) -> PathBuf {
 }
 
 pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle, test_server: bool) -> Result<(), String> {
-    println!("startuje klienta");
-
+    log_debug("Stating setting up things for running CUO client...");
     let mut server_info = http_client::get_server_info().await.unwrap();
 
     #[cfg(debug_assertions)] {
+        log_debug("Running in debug mode, using test server...");
         server_info = ServerInfo {
             server_ip: "localhost".to_string(),
             server_port: "5001".to_string(),
@@ -51,13 +50,6 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     let server_port = if test_server { server_info.test_server_port } else { server_info.server_port };
     
     let uo_path = game_dir.join("..");
-    // let absolute_path: PathBuf = match fs::canonicalize(&uo_relative_path) {
-    //     Ok(path) => path,
-    //     Err(e) => {
-    //         return Err(format!("Error getting absolute path: {}", e));
-    //     }
-    // };
-    
     let mut client_path = game_dir.clone();
     let os_type = env::consts::OS;
 
@@ -79,13 +71,17 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
             client_path.push("ClassicUO");
         },
         _ => {
-            println!("Nieznany system operacyjny.");
+            log_debug("Unsupported OS type");
+            return Err(format!("Unsupported OS type: {}", os_type));
         }
     }
 
-    println!("client_path: {}", client_path.to_string_lossy());
+    log_debug(&format!("Starting client from path: {}", client_path.to_string_lossy()));
+    log_debug(&format!("Args for client: {:?}", args));
+    log_debug(&format!("Current directory: {}", game_dir.to_string_lossy()));
+    
+    enable_file_logging(true);
 
-    println!("args: {:?}", args);
     let mut child = match Command::new(client_path)
         .args(&args)
         .stdout(Stdio::piped())
@@ -94,52 +90,42 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
         .spawn() {
             Ok(child) => child,
             Err(err) => {
-                println!("failed to start client with error: {}", err);
+                log(&format!("Failed to start client: {}", err));
                 return Err(format!("Failed to start client: {}", err))
             }
         };
 
-    println!("uruchomiono klienta");
+    log_debug("Client started successfully");
+
     let main_window = app_handle.get_window("main").unwrap();
     events::send_update_status_event("Gra uruchomiona", main_window.clone()).await.unwrap();
     events::send_client_state_event(true, main_window.clone()).await.unwrap();
-    tray::hide_window(app_handle).await.unwrap();
-   
-    let mut log_file = File::create("process.log").unwrap();
-
-    // Pobieramy stdout
-    if let Some(mut stdout) = child.stdout.take() {
-        io::copy(&mut stdout, &mut log_file).unwrap(); // Kopiujemy stdout do pliku
-    }
-
-    // Pobieramy stderr
-    if let Some(mut stderr) = child.stderr.take() {
-        io::copy(&mut stderr, &mut log_file).unwrap(); // Kopiujemy stderr do pliku
-    }
-
-    // if let Some(stdout) = child.stdout.take() {
-    //     let reader = BufReader::new(stdout);
-    //     for line in reader.lines() {
-    //         println!("output: {}", line.expect("error reading line"));
-    //     }
-    // }
     
-    // if let Some(stderr) = child.stderr.take() {
-    //     let reader = BufReader::new(stderr);
-    //     for line in reader.lines() {
-    //         eprintln!("stderr: {}", line.unwrap());
-    //     }
-    // }
+    tray::hide_window(app_handle).await.unwrap();
+
+    if let Some(stdout) = child.stdout.take() {
+        let reader = BufReader::new(stdout);
+        for line in reader.lines() {
+            log_debug(&format!("{}", line.expect("error reading line")));
+        }
+    }
+    
+    if let Some(stderr) = child.stderr.take() {
+        let reader = BufReader::new(stderr);
+        for line in reader.lines() {
+            log_to_file_only(&format!("stderr: {}", line.unwrap()));
+        }
+    }
 
     let status = child.wait();
-    println!("Process exited with status: {}", status.unwrap());
+    enable_file_logging(false);
+    log_debug(&format!("Client exited with status: {}", status.unwrap()));
 
     main_window.emit("updateStatus", "Graj").unwrap();
     main_window.emit("clientState", false).unwrap();
     main_window.show().unwrap();
 
-
-    println!("koniec procesu klienta");
+    log_debug("Client exited");
 
     Ok(())
 }

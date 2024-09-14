@@ -75,26 +75,7 @@ pub async fn download_file(path: &String, app_handle: tauri::AppHandle) -> Resul
         window.emit("download_progress", final_speed).map_err(|e| e.to_string())?;
     }
 
-
-
-
-    // let mut content2 =  Cursor::new(content);
-    // println!("zapisuje na dysk plik {}", &file_name);
-
-    // if let Err(err) = std::io::copy(&mut content2, &mut dest) {
-
-    //     return Err(format!("Failed to write file: {}", err));
-    // }
-
-    // let permissions = 0o755; // Uprawnienia do odczytu i wykonywania dla wszystkich
-     
-    // // Zmieniamy uprawnienia pliku
-    // if let Err(err) = dest.set_permissions(Permissions::from_mode(permissions)) {
-    //     return Err(format!("Failed to set permissions: {}", err));
-    // }
-    set_file_permissions(dest);
-     
-
+    set_file_permissions(dest); 
     Ok(())
 }
 
