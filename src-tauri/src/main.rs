@@ -25,7 +25,6 @@ struct Payload {
 #[derive(Debug, Deserialize, Serialize)]
 struct FileInfo {
     path: String,
-    file_name: String,
 }
 
 #[tauri::command]
@@ -45,9 +44,9 @@ async fn run_game(app_handle: tauri::AppHandle, test_server: bool) -> Result<(),
 
 #[tauri::command]
 async fn download_file(file_info: FileInfo, app_handle: tauri::AppHandle) { // note String instead of Error
-  match files::download_file(&file_info.file_name, &file_info.path, app_handle.clone()).await {
-      Ok(_) => println!("Downloaded {}", file_info.file_name),
-      Err(e) => eprintln!("Error downloading {}: {}", file_info.file_name, e),
+  match files::download_file(&file_info.path, app_handle.clone()).await {
+      Ok(_) => println!("Downloaded {}", file_info.path),
+      Err(e) => eprintln!("Error downloading {}: {}", file_info.path, e),
   }
 //   for file in files {
 //     let game_dir2 = game_dir.clone();
@@ -67,8 +66,9 @@ async fn download_file(file_info: FileInfo, app_handle: tauri::AppHandle) { // n
 }
 
 #[tauri::command]
-async fn calculate_sha256(file_path: String) -> Result<String, String> {
-    let mut file = match File::open(&file_path) {
+async fn calculate_sha256(file_path: String, app_handle: tauri::AppHandle) -> Result<String, String> {
+  let game_dir = files::get_game_folder_path_buf(app_handle.clone());
+  let mut file = match File::open(game_dir.join(file_path)) {
         Ok(file) => file,
         Err(_) => return Err("Could not open file".to_string()),
     };
@@ -86,6 +86,13 @@ async fn calculate_sha256(file_path: String) -> Result<String, String> {
 
     Ok(format!("{:x}", hasher.finalize()))
 }
+
+#[tauri::command]
+async fn get_files_in_game_folder(app_handle: tauri::AppHandle) -> Result<Vec<String>, String> {
+    let files = files::get_all_files_in_game_folder(app_handle.clone());
+    Ok(files)
+}
+
 
 
 
@@ -130,7 +137,7 @@ fn main() {
     println!("{}, {argv:?}, {cwd}", app.package_info().name);
     app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
   }))
-  .invoke_handler(tauri::generate_handler![download_file, run_game, calculate_sha256])
+  .invoke_handler(tauri::generate_handler![download_file, run_game, calculate_sha256, get_files_in_game_folder])
   .run(tauri::generate_context!())
   .expect("error while running tauri application");
 }

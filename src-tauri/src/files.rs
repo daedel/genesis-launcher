@@ -1,18 +1,17 @@
 use std::io::Write;
 use std::fs::{self, File};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use crate::http_client;
 use std::time::{Instant, Duration};
 use futures_util::StreamExt;
 use tauri::Manager;
 
-
 // use std::os::unix::fs::PermissionsExt; // Potrzebne na Unix/Linux
 
-pub async fn download_file(file_name: &str, path: &String, app_handle: tauri::AppHandle) -> Result<(), String> {
+pub async fn download_file(path: &String, app_handle: tauri::AppHandle) -> Result<(), String> {
     
     let client = http_client::get_http_client();
-    let url: String = http_client::build_url(file_name.to_string());
+    let url: String = http_client::build_url(path.to_string());
     let game_dir: std::path::PathBuf = get_game_folder_path_buf(app_handle.clone());
 
     // Wysyłamy zapytanie GET na podany URL
@@ -130,4 +129,29 @@ pub fn get_game_folder_path_buf(app_handle: tauri::AppHandle) -> PathBuf {
     resource_dir.push("game/");
     return resource_dir;
     
+}
+
+pub fn get_all_files_in_game_folder(app_handle: tauri::AppHandle) -> Vec<String> {
+    let game_dir = get_game_folder_path_buf(app_handle.clone());
+    let files = get_files_recursive(&game_dir, &game_dir);
+    files
+}
+
+fn get_files_recursive(dir: &Path, base_dir: &Path) -> Vec<String> {
+    let mut files = Vec::new();
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_file() {
+                if let Ok(relative_path) = path.strip_prefix(base_dir) {
+                    if let Some(path_str) = relative_path.to_str() {
+                        files.push(path_str.to_string());
+                    }
+                }
+            } else if path.is_dir() {
+                files.extend(get_files_recursive(&path, base_dir));
+            }
+        }
+    }
+    files
 }

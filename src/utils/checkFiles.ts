@@ -1,23 +1,19 @@
-import { BaseDirectory, createDir, exists, FileEntry, readDir } from "@tauri-apps/api/fs";
+import { BaseDirectory, createDir, exists } from "@tauri-apps/api/fs";
 import { GAME_FOLDER } from "./consts";
 import { getHttpClient } from "./httpClient";
 import { invoke } from "@tauri-apps/api";
 import { emit } from "@tauri-apps/api/event";
-
-type StringDictionary = {
-    [key: string]: string;
-};
 
 type HashInfo = {
     [key: string]: {
         base: boolean;
         hash: string;
         path: string;
+        file_name: string;
     };
 };
 
 type FileInfo = {
-    file_name: string;
     path: string;
 };
 
@@ -42,6 +38,7 @@ class GameFileChecker {
     }
 
     private async downloadFiles(filesToUpdate: FileInfo[]) {
+        console.log("filesToUpdate", filesToUpdate);
         this.updateStatus("Wymagana aktualizacja plików. Pobieranie...");
         this.updateProgress(0);
         let progress = 0;
@@ -70,25 +67,27 @@ class GameFileChecker {
         const currentGameFiles = await this.getCurrentGameFiles();
         const hashesInfo = await this.getFileHashes();
         console.log(hashesInfo);
+        // console.log(hashesInfo);
+
         let filesNeedsUpdate: FileInfo[] = [];
 
         const checkFile = async (fileName: string) => {
             const hashInfo = hashesInfo[fileName];
-            if (fileName in currentGameFiles) {
+            if (currentGameFiles.includes(fileName)) {
                 if (hashInfo.base) {
-                    const diskFileHash = await invoke<string>('calculate_sha256', { filePath: currentGameFiles[fileName] });
+                    const diskFileHash = await invoke<string>('calculate_sha256', { filePath:  fileName});
                     const remoteHash = hashesInfo[fileName].hash;
                     if (diskFileHash !== remoteHash) {
-                        filesNeedsUpdate.push({ file_name: fileName, path: hashInfo.path });
+                        filesNeedsUpdate.push({ path: fileName});
                     };
                 }
             } else {
-                filesNeedsUpdate.push({ file_name: fileName, path: hashInfo.path });
+                filesNeedsUpdate.push({ path: fileName });
             }
         }
 
         let progress = 0;
-        const total_files = Object.keys(hashesInfo).length
+        const total_files = Object.keys(hashesInfo).length;
         let old_value = 0;
         for (const fileName in hashesInfo) {
             await checkFile(fileName);
@@ -109,23 +108,24 @@ class GameFileChecker {
         return response.data;
     }
 
-    private async getCurrentGameFiles() {
-        const gameFiles = await readDir(GAME_FOLDER, { dir: BaseDirectory.Resource, recursive: true });
-        let mergedList: StringDictionary = {};
-
-        const recursiveMerge = (entries: FileEntry[]) => {
-            for (const entry of entries) {
-                if (entry.children) {
-                    recursiveMerge(entry.children);
-                } else {
-                    if (entry.name) {
-                        mergedList[entry.name] = entry.path;
-                    }
-                }
-            }
-        }
-        recursiveMerge(gameFiles);
-        return mergedList;
+    private async getCurrentGameFiles(): Promise<String[]> {
+        return await invoke("get_files_in_game_folder");
+        // const gameFiles = await readDir(GAME_FOLDER, { dir: BaseDirectory.Resource, recursive: true });
+        // let mergedList: StringDictionary = {};
+        // console.log("gameFiles", gameFiles);
+        // const recursiveMerge = (entries: FileEntry[]) => {
+        //     for (const entry of entries) {
+        //         if (entry.children) {
+        //             recursiveMerge(entry.children);
+        //         } else {
+        //             if (entry.name) {
+        //                 mergedList[entry.name] = entry.path;
+        //             }
+        //         }
+        //     }
+        // }
+        // recursiveMerge(gameFiles);
+        // return mergedList;
 
     }
 
