@@ -50,18 +50,19 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     let mut client_path = game_dir.clone();
     let os_type = env::consts::OS;
 
-    let mut args = vec!["-uopath", uo_path.to_str().unwrap(), "-ip", server_ip.as_str(), "-port", server_port.as_str()];
+    let mut args: Vec<String> = vec!["-uopath".to_string(), uo_path.to_str().unwrap().to_string(), "-ip".to_string(), server_ip.as_str().to_string(), "-port".to_string(), server_port.as_str().to_string()];
 
     match os_type {
         "windows" => {
             client_path.push("ClassicUO.exe");
-            args.push("-plugins");
-            args.push("RazorEnhanced/RazorEnhanced.exe");
-        },
+            args.push("-plugins".to_string());
+            let razor_path = PathBuf::from("RazorEnhanced").join("RazorEnhanced.exe").into_os_string().into_string().unwrap();
+            args.push(razor_path);
+        },  
         "macos" => {
             client_path.push("ClassicUO.bin.osx");
         },
-        "linux" => {
+        "linux" => {    
             client_path.push("ClassicUO");
         },
         _ => {
