@@ -2,11 +2,13 @@
 use std::env;
 use std::process::{Command, Stdio};
 use std::io::{BufRead, BufReader};
+use std::fs::File;
+
 use tauri::Manager;
-use std::fs;
 use std::path::PathBuf;
 use crate::http_client::ServerInfo;
 use crate::{events, http_client, tray};
+use std::io::{self};
 
 
 pub async fn add_os_secret_variable() -> Result<(), String> {
@@ -92,22 +94,34 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     events::send_client_state_event(true, main_window.clone()).await.unwrap();
     tray::hide_window(app_handle).await.unwrap();
    
-    if let Some(stdout) = child.stdout.take() {
-        let reader = BufReader::new(stdout);
-        for line in reader.lines() {
-            println!("output: {}", line.expect("error reading line"));
-        }
-    }
-    
-    if let Some(stderr) = child.stderr.take() {
-        let reader = BufReader::new(stderr);
-        for line in reader.lines() {
-            eprintln!("error: {}", line.expect("error reading line"));
-        }
+    let mut log_file = File::create("process.log").unwrap();
+
+    // Pobieramy stdout
+    if let Some(mut stdout) = child.stdout.take() {
+        io::copy(&mut stdout, &mut log_file).unwrap(); // Kopiujemy stdout do pliku
     }
 
-    let status = child.wait().expect("blad procesu");
-    println!("Process exited with status: {}", status);
+    // Pobieramy stderr
+    if let Some(mut stderr) = child.stderr.take() {
+        io::copy(&mut stderr, &mut log_file).unwrap(); // Kopiujemy stderr do pliku
+    }
+
+    // if let Some(stdout) = child.stdout.take() {
+    //     let reader = BufReader::new(stdout);
+    //     for line in reader.lines() {
+    //         println!("output: {}", line.expect("error reading line"));
+    //     }
+    // }
+    
+    // if let Some(stderr) = child.stderr.take() {
+    //     let reader = BufReader::new(stderr);
+    //     for line in reader.lines() {
+    //         eprintln!("stderr: {}", line.unwrap());
+    //     }
+    // }
+
+    let status = child.wait();
+    println!("Process exited with status: {}", status.unwrap());
 
     main_window.emit("updateStatus", "Graj").unwrap();
     main_window.emit("clientState", false).unwrap();
