@@ -133,8 +133,7 @@ pub fn get_game_folder_path_buf(app_handle: tauri::AppHandle) -> PathBuf {
 
 pub fn get_all_files_in_game_folder(app_handle: tauri::AppHandle) -> Vec<String> {
     let game_dir = get_game_folder_path_buf(app_handle.clone());
-    let files = get_files_recursive(&game_dir, &game_dir);
-    files
+    get_files_recursive(&game_dir, &game_dir)
 }
 
 fn get_files_recursive(dir: &Path, base_dir: &Path) -> Vec<String> {
@@ -144,9 +143,8 @@ fn get_files_recursive(dir: &Path, base_dir: &Path) -> Vec<String> {
             let path = entry.path();
             if path.is_file() {
                 if let Ok(relative_path) = path.strip_prefix(base_dir) {
-                    if let Some(path_str) = relative_path.to_str() {
-                        files.push(path_str.to_string());
-                    }
+                    let normalized_path = normalize_path(relative_path);
+                    files.push(normalized_path);
                 }
             } else if path.is_dir() {
                 files.extend(get_files_recursive(&path, base_dir));
@@ -154,4 +152,11 @@ fn get_files_recursive(dir: &Path, base_dir: &Path) -> Vec<String> {
         }
     }
     files
+}
+
+fn normalize_path(path: &Path) -> String {
+    path.components()
+        .map(|comp| comp.as_os_str().to_string_lossy().into_owned())
+        .collect::<Vec<String>>()
+        .join("/")
 }

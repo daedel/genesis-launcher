@@ -16,8 +16,8 @@ const getPlatform = async () => {
 const getHttpClient = async () => {
 
   const HTTP = axios.create({
-    baseURL: 'https://api.uogenesis.pl/',
-    // baseURL: 'http://localhost:8008/',
+    // baseURL: 'https://api.uogenesis.pl/',
+    baseURL: 'http://localhost:8008/',
     headers: {
       'Platform': await getPlatform()
     },

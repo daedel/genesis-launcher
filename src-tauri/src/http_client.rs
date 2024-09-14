@@ -49,8 +49,8 @@ pub async fn get_server_info() -> Result<ServerInfo, String>{
 }
 
 fn get_api_url() -> String {
-    "https://api.uogenesis.pl/".to_owned()
-    // "http://localhost:8008/".to_owned()
+    // "https://api.uogenesis.pl/".to_owned()
+    "http://localhost:8008/".to_owned()
 }
 
 
