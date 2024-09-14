@@ -76,6 +76,7 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
         .args(&args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
+        .current_dir(game_dir)
         .spawn() {
             Ok(child) => child,
             Err(err) => {
