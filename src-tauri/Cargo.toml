@@ -21,6 +21,10 @@ tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-wo
 futures-util = "0.3"
 percent-encoding = "2.3.1"
 chrono = "0.4.38"
+zip = "0.6"
+futures = "0.3"
+tokio-util = "0.7"
+
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

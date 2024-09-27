@@ -32,10 +32,11 @@ fn log_to_file(message: &str) {
 }
 
 // Logowanie w trybie dev
-#[cfg(debug_assertions)]
 pub fn log_debug(message: &str) {
-    println!("[DEBUG] {}", message);
-    log_to_file(&format!("[DEBUG] {}", message));
+    #[cfg(debug_assertions)] {
+        println!("[DEBUG] {}", message);
+        log_to_file(&format!("[DEBUG] {}", message));
+    }
 }
 
 

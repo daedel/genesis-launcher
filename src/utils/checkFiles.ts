@@ -13,9 +13,6 @@ type HashInfo = {
     };
 };
 
-type FileInfo = {
-    path: string;
-};
 
 class GameFileChecker {
     updateProgress: (progress: number) => void;
@@ -37,23 +34,26 @@ class GameFileChecker {
         return await this.getGameFilesToDownload();
     }
 
-    private async downloadFiles(filesToUpdate: FileInfo[]) {
+    private async downloadFiles(filesToUpdate: string[]) {
         console.log("filesToUpdate", filesToUpdate);
         this.updateProgress(0);
-        let progress = 0;
-        const total_files = filesToUpdate.length
-        let old_value = 0;
-        for (const file of filesToUpdate) {
-            await invoke("download_file", { fileInfo: file });
-            progress += 1;
-            this.updateDownloadInfo(progress + " z " + total_files);
-            const percentage = Math.trunc((progress / total_files) * 100);
-            if (percentage !== old_value) {
-                old_value = percentage;
-                this.updateProgress(percentage);
-                this.updateStatus(percentage.toString() + "%");
-            }
-        }
+        // let progress = 0;
+        // const total_files = filesToUpdate.length
+        // let old_value = 0;
+
+        await invoke("download_file", { files: filesToUpdate });
+
+        // for (const file of filesToUpdate) {
+        //     await invoke("download_file", { fileInfo: file });
+        //     progress += 1;
+        //     this.updateDownloadInfo(progress + " z " + total_files);
+        //     const percentage = Math.trunc((progress / total_files) * 100);
+        //     if (percentage !== old_value) {
+        //         old_value = percentage;
+        //         this.updateProgress(percentage);
+        //         this.updateStatus(percentage.toString() + "%");
+        //     }
+        // }
         this.updateStatus("Gotowe");
         this.updateDownloadInfo("");
 
@@ -68,7 +68,7 @@ class GameFileChecker {
         console.log("currentGameFiles", currentGameFiles);
         // console.log(hashesInfo);
 
-        let filesNeedsUpdate: FileInfo[] = [];
+        let filesNeedsUpdate: string[] = [];
 
         const checkFile = async (fileName: string) => {
             const hashInfo = hashesInfo[fileName];
@@ -77,11 +77,11 @@ class GameFileChecker {
                     const diskFileHash = await invoke<string>('calculate_sha256', { filePath:  fileName});
                     const remoteHash = hashesInfo[fileName].hash;
                     if (diskFileHash !== remoteHash) {
-                        filesNeedsUpdate.push({ path: fileName});
+                        filesNeedsUpdate.push(fileName);
                     };
                 }
             } else {
-                filesNeedsUpdate.push({ path: fileName });
+                filesNeedsUpdate.push(fileName);
             }
         }
 

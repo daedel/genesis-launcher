@@ -35,16 +35,16 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     log_debug("Stating setting up things for running CUO client...");
     let mut server_info = http_client::get_server_info().await.unwrap();
 
-    #[cfg(debug_assertions)] {
-        log_debug("Running in debug mode, using test server...");
-        server_info = ServerInfo {
-            server_ip: "localhost".to_string(),
-            server_port: "5001".to_string(),
-            test_server_ip: "localhost".to_string(),
-            test_server_port: "5002".to_string(),
-            allow_login: true,
-        }
-    }
+    // #[cfg(debug_assertions)] {
+    //     log_debug("Running in debug mode, using test server...");
+    //     server_info = ServerInfo {
+    //         server_ip: "localhost".to_string(),
+    //         server_port: "5001".to_string(),
+    //         test_server_ip: "localhost".to_string(),
+    //         test_server_port: "5002".to_string(),
+    //         allow_login: true,
+    //     }
+    // }
 
     let server_ip = if test_server { server_info.test_server_ip } else { server_info.server_ip };
     let server_port = if test_server { server_info.test_server_port } else { server_info.server_port };

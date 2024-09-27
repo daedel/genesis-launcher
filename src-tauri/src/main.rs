@@ -15,7 +15,7 @@ mod events;
 mod tray;
 mod platform_utils;
 mod http_client;
-pub mod logging;
+mod logging;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
@@ -44,10 +44,10 @@ async fn run_game(app_handle: tauri::AppHandle, test_server: bool) -> Result<(),
 }
 
 #[tauri::command]
-async fn download_file(file_info: FileInfo, app_handle: tauri::AppHandle) { // note String instead of Error
-  match files::download_file(&file_info.path, app_handle.clone()).await {
-      Ok(_) => println!("Downloaded {}", file_info.path),
-      Err(e) => eprintln!("Error downloading {}: {}", file_info.path, e),
+async fn download_file(files: Vec<String>, app_handle: tauri::AppHandle) { // note String instead of Error
+  match files::download_files(files, app_handle.clone()).await {
+      Ok(_) => println!("Downloaded files",),
+      Err(e) => eprintln!("Error downloading files: {}", e),
   }
 //   for file in files {
 //     let game_dir2 = game_dir.clone();

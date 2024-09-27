@@ -26,9 +26,10 @@ pub fn get_common_headers() -> HeaderMap {
     headers
 }
 
-pub fn build_url(file_name: String) -> String {
-    let encoded_file_name = utf8_percent_encode(&file_name, NON_ALPHANUMERIC).to_string();
-    get_api_url()+"uo_files/get_file/?file_name="+&encoded_file_name
+pub fn build_url() -> String {
+    // let encoded_file_name = utf8_percent_encode(&file_name, NON_ALPHANUMERIC).to_string();
+    // get_api_url()+"uo_files/get_files/?file_name="+&encoded_file_name
+    get_api_url()+"uo_files/get_files/"
 }   
 
 pub async fn get_server_info() -> Result<ServerInfo, String>{
