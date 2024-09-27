@@ -1,11 +1,10 @@
 
 use std::env;
 use std::process::{Command, Stdio};
-use std::io::{self, BufReader, BufRead};
+use std::io::{BufReader, BufRead};
 
 use tauri::Manager;
 use std::path::PathBuf;
-use crate::http_client::ServerInfo;
 use crate::{events, http_client, tray};
 use crate::logging::{enable_file_logging, log, log_debug, log_to_file_only};
 

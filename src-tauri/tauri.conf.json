@@ -21,7 +21,7 @@
       },
       "fs": {
         "all": true,
-        "scope" : ["$APPDATA/**", "$APPLOCALDATA/app-settings.json"]
+        "scope" : ["$APPLOCALDATA/**", "$APPLOCALDATA/app-settings.json"]
       },
       "shell": {
         "all": false,
