@@ -3,6 +3,7 @@ import { GAME_FOLDER } from "./consts";
 import { getHttpClient } from "./httpClient";
 import { invoke } from "@tauri-apps/api";
 import { emit } from "@tauri-apps/api/event";
+import { appDataDir } from "@tauri-apps/api/path";
 
 type HashInfo = {
     [key: string]: {
@@ -27,6 +28,7 @@ class GameFileChecker {
     }
 
     private async getFilesForUpdate() {
+        console.log(await appDataDir())
         this.updateStatus("Sprawdzanie plików");
         this.updateProgress(0);
 
@@ -37,28 +39,13 @@ class GameFileChecker {
     private async downloadFiles(filesToUpdate: string[]) {
         console.log("filesToUpdate", filesToUpdate);
         this.updateProgress(0);
-        // let progress = 0;
-        // const total_files = filesToUpdate.length
-        // let old_value = 0;
+        this.updateStatus("Pobieranie")
 
-        await invoke("download_file", { files: filesToUpdate });
+        await invoke("download_files", { files: filesToUpdate });
 
-        // for (const file of filesToUpdate) {
-        //     await invoke("download_file", { fileInfo: file });
-        //     progress += 1;
-        //     this.updateDownloadInfo(progress + " z " + total_files);
-        //     const percentage = Math.trunc((progress / total_files) * 100);
-        //     if (percentage !== old_value) {
-        //         old_value = percentage;
-        //         this.updateProgress(percentage);
-        //         this.updateStatus(percentage.toString() + "%");
-        //     }
-        // }
         this.updateStatus("Gotowe");
         this.updateDownloadInfo("");
-
-        await emit('download_progress', '');
-
+        await emit('download_speed', '');
 
     }
 
@@ -129,9 +116,10 @@ class GameFileChecker {
     }
 
     private async createGameDirIfNotExists() {
-        const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.Resource });
+       
+        const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.AppLocalData });
         if (game_dir_exists === false) {
-            await createDir(GAME_FOLDER, { dir: BaseDirectory.Resource });
+            await createDir(GAME_FOLDER, { dir: BaseDirectory.AppLocalData , recursive: true});
         }
     };
 

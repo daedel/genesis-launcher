@@ -1,7 +1,6 @@
 
 use reqwest::{self, header::{HeaderMap, HeaderValue}};
 use serde::Deserialize;
-use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 
 use crate::platform_utils;
 
@@ -12,7 +11,6 @@ pub struct ServerInfo {
     pub server_port: String,
     pub test_server_ip: String,
     pub test_server_port: String,
-    pub allow_login: bool,
 }
 
 
@@ -27,8 +25,6 @@ pub fn get_common_headers() -> HeaderMap {
 }
 
 pub fn build_url() -> String {
-    // let encoded_file_name = utf8_percent_encode(&file_name, NON_ALPHANUMERIC).to_string();
-    // get_api_url()+"uo_files/get_files/?file_name="+&encoded_file_name
     get_api_url()+"uo_files/get_files/"
 }   
 
@@ -54,20 +50,3 @@ fn get_api_url() -> String {
     // "http://localhost:8008/".to_owned()
 }
 
-
-    // if !response.status().is_success() {
-    //     return Err(format!("HTTP error: {}", response.status()));
-    // }
-
-    // let content = match response.bytes().await {
-    //     Ok(bytes) => bytes,
-    //     Err(err) => return Err(format!("Failed to read response body: {}", err)),
-    // };
-
-    // let mut content2 = std::io::Cursor::new(content);
-    // let file_path = format!("./{}", file_name);
-    // file::write_binary(&file_path, &mut content2).unwrap();
-
-    // Ok(())
-
-    // Ok(())

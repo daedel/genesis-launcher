@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use files::get_game_folder_path_buf;
+use logging::log_debug;
 use tauri::{Manager, CustomMenuItem, SystemTray, SystemTrayMenu, SystemTrayMenuItem, SystemTrayEvent};
 use std::fs::File;
 use sha2::{Sha256, Digest};
@@ -30,13 +32,11 @@ struct FileInfo {
 
 #[tauri::command]
 async fn run_game(app_handle: tauri::AppHandle, test_server: bool) -> Result<(), String> { // note String instead of Error
-  println!("run_game");
+  log_debug("run_game".to_string());
   game::add_os_secret_variable().await?;
-
-  let resource_dir = app_handle.path_resolver().resource_dir().expect("no resource dir");
   
-  let mut game_dir = resource_dir.clone();
-  game_dir.push("game/ClassicUO");
+  let mut game_dir = get_game_folder_path_buf(app_handle.clone());
+  game_dir.push("ClassicUO");
 
   game::run_client(game_dir, app_handle, test_server).await?;
 
@@ -44,26 +44,11 @@ async fn run_game(app_handle: tauri::AppHandle, test_server: bool) -> Result<(),
 }
 
 #[tauri::command]
-async fn download_file(files: Vec<String>, app_handle: tauri::AppHandle) { // note String instead of Error
+async fn download_files(files: Vec<String>, app_handle: tauri::AppHandle) { // note String instead of Error
   match files::download_files(files, app_handle.clone()).await {
       Ok(_) => println!("Downloaded files",),
       Err(e) => eprintln!("Error downloading files: {}", e),
   }
-//   for file in files {
-//     let game_dir2 = game_dir.clone();
-//     let handle = task::spawn(async move {
-//       match files::download_file(&file.file_name, &file.path, &game_dir2).await {
-//           Ok(_) => println!("Downloaded {}", file.file_name),
-//           Err(e) => eprintln!("Error downloading {}: {}", file.file_name, e),
-//       }
-//     });
-//     handles.push(handle);
-//   }; 
-  
-//   // Czekamy na zakończenie wszystkich zadań
-//   for handle in handles {
-//     handle.await.unwrap();
-// }
 }
 
 #[tauri::command]
@@ -93,8 +78,6 @@ async fn get_files_in_game_folder(app_handle: tauri::AppHandle) -> Result<Vec<St
     let files = files::get_all_files_in_game_folder(app_handle.clone());
     Ok(files)
 }
-
-
 
 
 fn main() {
@@ -138,7 +121,7 @@ fn main() {
     println!("{}, {argv:?}, {cwd}", app.package_info().name);
     app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
   }))
-  .invoke_handler(tauri::generate_handler![download_file, run_game, calculate_sha256, get_files_in_game_folder])
+  .invoke_handler(tauri::generate_handler![download_files, run_game, calculate_sha256, get_files_in_game_folder])
   .run(tauri::generate_context!())
   .expect("error while running tauri application");
 }

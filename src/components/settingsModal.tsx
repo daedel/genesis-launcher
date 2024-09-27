@@ -21,11 +21,11 @@ function SettingsModal(){
 
     const loadSettings = async () => {
         try {
-            const data = await readTextFile(settingsFilePath, { dir: BaseDirectory.Resource });
+            const data = await readTextFile(settingsFilePath, { dir: BaseDirectory.AppLocalData });
             setSettings(JSON.parse(data) as AppSettings);
         } catch (error) {
             
-            await writeTextFile(settingsFilePath, JSON.stringify(defaultSettings, null, 2), { dir: BaseDirectory.Resource });
+            await writeTextFile(settingsFilePath, JSON.stringify(defaultSettings, null, 2), { dir: BaseDirectory.AppLocalData });
             setSettings(defaultSettings);
             console.error('Nie udało się załadować ustawień, używanie domyślnych.', error);
         }
@@ -34,7 +34,7 @@ function SettingsModal(){
     // Funkcja do zapisania ustawień do pliku JSON
     const saveSettings = async () => {
         try {
-            await writeTextFile(settingsFilePath, JSON.stringify(settings, null, 2), { dir: BaseDirectory.Resource });
+            await writeTextFile(settingsFilePath, JSON.stringify(settings, null, 2), { dir: BaseDirectory.AppLocalData });
         } catch (error) {
             console.error('Błąd podczas zapisywania ustawień:', error);
         }

@@ -3,7 +3,7 @@ import { readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
 
 const readGameSettings = async (key_name: string) => {
     try {
-        const app_settings = await readTextFile("app-settings.json", { dir: BaseDirectory.Resource });
+        const app_settings = await readTextFile("app-settings.json", { dir: BaseDirectory.AppLocalData });
         if (app_settings) {
             const settings = JSON.parse(app_settings);
             return settings[key_name];

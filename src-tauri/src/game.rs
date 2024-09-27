@@ -32,8 +32,8 @@ fn normalize_path(path: PathBuf) -> PathBuf {
 }
 
 pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle, test_server: bool) -> Result<(), String> {
-    log_debug("Stating setting up things for running CUO client...");
-    let mut server_info = http_client::get_server_info().await.unwrap();
+    log_debug("Stating setting up things for running CUO client...".to_string());
+    let server_info = http_client::get_server_info().await.unwrap();
 
     // #[cfg(debug_assertions)] {
     //     log_debug("Running in debug mode, using test server...");
@@ -71,14 +71,14 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
             client_path.push("ClassicUO");
         },
         _ => {
-            log_debug("Unsupported OS type");
+            log_debug("Unsupported OS type".to_string());
             return Err(format!("Unsupported OS type: {}", os_type));
         }
     }
 
-    log_debug(&format!("Starting client from path: {}", client_path.to_string_lossy()));
-    log_debug(&format!("Args for client: {:?}", args));
-    log_debug(&format!("Current directory: {}", game_dir.to_string_lossy()));
+    log_debug(format!("Starting client from path: {}", client_path.to_string_lossy()));
+    log_debug(format!("Args for client: {:?}", args));
+    log_debug(format!("Current directory: {}", game_dir.to_string_lossy()));
     
     enable_file_logging(true);
 
@@ -95,7 +95,7 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
             }
         };
 
-    log_debug("Client started successfully");
+    log_debug("Client started successfully".to_string());
 
     let main_window = app_handle.get_window("main").unwrap();
     events::send_update_status_event("Gra uruchomiona", main_window.clone()).await.unwrap();
@@ -106,7 +106,7 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
     if let Some(stdout) = child.stdout.take() {
         let reader = BufReader::new(stdout);
         for line in reader.lines() {
-            log_debug(&format!("{}", line.expect("error reading line")));
+            log_debug(format!("{}", line.expect("error reading line")));
         }
     }
     
@@ -119,13 +119,13 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
 
     let status = child.wait();
     enable_file_logging(false);
-    log_debug(&format!("Client exited with status: {}", status.unwrap()));
+    log_debug(format!("Client exited with status: {}", status.unwrap()));
 
     main_window.emit("updateStatus", "Graj").unwrap();
     main_window.emit("clientState", false).unwrap();
     main_window.show().unwrap();
 
-    log_debug("Client exited");
+    log_debug("Client exited".to_string());
 
     Ok(())
 }

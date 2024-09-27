@@ -38,7 +38,11 @@ function PlayButton() {
             setState(event.payload);
         });
 
-        const unlisten3 = listen<string>('console', (event) => {
+        const unlisten3 = listen<number>('downloadProgress', (event) => {
+            setCompleted(event.payload);
+        });
+
+        const unlisten4 = listen<string>('console', (event) => {
             console.log(event.payload);
         });
 
@@ -56,13 +60,15 @@ function PlayButton() {
             unlisten1.then(f => f());
             unlisten2.then(f => f());
             unlisten3.then(f => f());
+            unlisten4.then(f => f());
+
 
         };
     }
         , []);
 
     const get_initial_button_status = async () => {
-        const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.Resource });
+        const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.AppLocalData });
         if (game_dir_exists === false) {
             return ButtonStatus.Install
         };

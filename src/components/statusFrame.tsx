@@ -5,7 +5,7 @@ function StatusFrame({  }) {
     const [frameStatus, setFrameStatus] = useState("Test");
 
     useEffect(() => {
-        const unlisten1 = listen<string>('download_progress', (event) => {
+        const unlisten1 = listen<string>('download_speed', (event) => {
             console.log("event: ", event.payload);
             setFrameStatus(event.payload);
             
