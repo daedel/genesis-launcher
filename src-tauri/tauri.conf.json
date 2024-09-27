@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "Genesis",
+    "productName": "Genesis-Launcher",
     "version": "0.0.1"
   },
   "tauri": {
