@@ -68,7 +68,7 @@ function PlayButton() {
         , []);
 
     const get_initial_button_status = async () => {
-        const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.AppLocalData });
+        const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.AppData });
         if (game_dir_exists === false) {
             return ButtonStatus.Install
         };

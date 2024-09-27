@@ -117,9 +117,9 @@ class GameFileChecker {
 
     private async createGameDirIfNotExists() {
        
-        const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.AppLocalData });
+        const game_dir_exists = await exists(GAME_FOLDER, { dir: BaseDirectory.AppData });
         if (game_dir_exists === false) {
-            await createDir(GAME_FOLDER, { dir: BaseDirectory.AppLocalData , recursive: true});
+            await createDir(GAME_FOLDER, { dir: BaseDirectory.AppData , recursive: true});
         }
     };
 

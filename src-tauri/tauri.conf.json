@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "Genesis-Instalator",
+    "productName": "Genesis",
     "version": "0.0.1"
   },
   "tauri": {
@@ -21,7 +21,7 @@
       },
       "fs": {
         "all": true,
-        "scope" : ["$APPLOCALDATA/**", "$APPLOCALDATA/app-settings.json"]
+        "scope" : ["$APPDATA/**"]
       },
       "shell": {
         "all": false,

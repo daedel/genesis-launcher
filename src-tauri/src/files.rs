@@ -137,7 +137,7 @@ fn build_file_path(mut game_dir: PathBuf , file_name: &Path) -> PathBuf {
 }
 
 pub fn get_game_folder_path_buf(app_handle: tauri::AppHandle) -> PathBuf {
-    let mut game_dir = app_handle.path_resolver().app_local_data_dir().expect("no resource dir");
+    let mut game_dir = app_handle.path_resolver().app_data_dir().expect("no resource dir");
     game_dir.push("Ultima Online - Genesis/");
     return game_dir;
     
