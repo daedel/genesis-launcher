@@ -1,6 +1,7 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import Modal from 'react-modal';
-import { readTextFile, writeTextFile, BaseDirectory } from '@tauri-apps/api/fs';
+import { readTextFile, writeTextFile, BaseDirectory, exists, createDir } from '@tauri-apps/api/fs';
+import { GAME_FOLDER } from '../utils/consts';
 
 
 // Typy dla ustawień aplikacji
@@ -25,6 +26,9 @@ function SettingsModal(){
             setSettings(JSON.parse(data) as AppSettings);
         } catch (error) {
             
+            if (!await exists(GAME_FOLDER, { dir: BaseDirectory.AppData })) {
+                await createDir(GAME_FOLDER, { dir: BaseDirectory.AppData , recursive: true});
+            }
             await writeTextFile(settingsFilePath, JSON.stringify(defaultSettings, null, 2), { dir: BaseDirectory.AppData });
             setSettings(defaultSettings);
             console.error('Nie udało się załadować ustawień, używanie domyślnych.', error);
