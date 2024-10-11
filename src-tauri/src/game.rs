@@ -30,7 +30,7 @@ fn normalize_path(path: PathBuf) -> PathBuf {
     }
 }
 
-pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle, test_server: bool) -> Result<(), String> {
+pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHandle, test_server: bool, razor: bool) -> Result<(), String> {
     log_debug("Stating setting up things for running CUO client...".to_string());
     let server_info = http_client::get_server_info().await.unwrap();
 
@@ -59,8 +59,10 @@ pub async fn run_client(game_dir: std::path::PathBuf, app_handle: tauri::AppHand
             let razor_path = client_path.join("Data").join("Plugins").join("RazorEnhanced").join("RazorEnhanced.exe");
             let normalized_razor_path = normalize_path(razor_path);
 
-            args.push("-plugins".to_string());
-            args.push(normalized_razor_path.to_str().unwrap().to_string());
+            if razor {
+                args.push("-plugins".to_string());
+                args.push(normalized_razor_path.to_str().unwrap().to_string());
+            }
             client_path.push("ClassicUO.exe");
         },  
         "macos" => {

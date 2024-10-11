@@ -136,9 +136,11 @@ function PlayButton() {
         if (fileChecker.status === true) {
             setStatus("Włączanie gry");
             const test_server = await readGameSettings("test_server");
+            const razor = await readGameSettings("razor");
+
             console.log('test_server', test_server);
             try {
-                await invoke("run_game", { testServer: test_server });
+                await invoke("run_game", { testServer: test_server, razor: razor});
             } catch (error) {
                 console.error('Error running game:', error);
                 setStatus("Błąd podczas uruchamiania gry");

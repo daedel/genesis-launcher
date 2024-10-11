@@ -31,14 +31,14 @@ struct FileInfo {
 }
 
 #[tauri::command]
-async fn run_game(app_handle: tauri::AppHandle, test_server: bool) -> Result<(), String> { // note String instead of Error
+async fn run_game(app_handle: tauri::AppHandle, test_server: bool, razor: bool) -> Result<(), String> { // note String instead of Error
   log_debug("run_game".to_string());
   game::add_os_secret_variable().await?;
   
   let mut game_dir = get_game_folder_path_buf(app_handle.clone());
   game_dir.push("ClassicUO");
 
-  game::run_client(game_dir, app_handle, test_server).await?;
+  game::run_client(game_dir, app_handle, test_server, razor).await?;
 
   Ok(())
 }
