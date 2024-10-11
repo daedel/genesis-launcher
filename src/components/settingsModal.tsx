@@ -7,15 +7,22 @@ import { GAME_FOLDER } from '../utils/consts';
 // Typy dla ustawień aplikacji
 interface AppSettings {
     test_server: boolean;
+    razor: boolean;
 }
 
 // Domyślne ustawienia
 const defaultSettings: AppSettings = {
     test_server: false,
+    razor: true,
 };
 
-function SettingsModal(){
-    const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+interface SettingsModalProps {
+    isOpen: boolean;
+    setModalOpen: (isOpen: boolean) => void;
+}
+
+function SettingsModal({ isOpen, setModalOpen }: SettingsModalProps) {
+    // const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
     const [settings, setSettings] = useState<AppSettings>(defaultSettings);
 
     const settingsFilePath = 'app-settings.json';
@@ -25,9 +32,9 @@ function SettingsModal(){
             const data = await readTextFile(settingsFilePath, { dir: BaseDirectory.AppData });
             setSettings(JSON.parse(data) as AppSettings);
         } catch (error) {
-            
+
             if (!await exists(GAME_FOLDER, { dir: BaseDirectory.AppData })) {
-                await createDir(GAME_FOLDER, { dir: BaseDirectory.AppData , recursive: true});
+                await createDir(GAME_FOLDER, { dir: BaseDirectory.AppData, recursive: true });
             }
             await writeTextFile(settingsFilePath, JSON.stringify(defaultSettings, null, 2), { dir: BaseDirectory.AppData });
             setSettings(defaultSettings);
@@ -48,12 +55,9 @@ function SettingsModal(){
         loadSettings(); // Załaduj ustawienia przy pierwszym renderze
     }, []);
 
-    const openModal = () => {
-        setModalIsOpen(true);
-    };
-
     const closeModal = () => {
-        setModalIsOpen(false);
+        setModalOpen(false);
+        closeModal();
     };
 
     const handleSaveSettings = () => {
@@ -73,53 +77,72 @@ function SettingsModal(){
 
     return (
         <div>
-            <button
-                onClick={openModal}
-                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-                <i className="settings-icon">⚙️</i> Ustawienia
-            </button>
             <Modal
                 ariaHideApp={false}
-                isOpen={modalIsOpen}
+                isOpen={isOpen}
                 onRequestClose={closeModal}
                 contentLabel="Settings Modal"
-                className="p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto my-20"
+                className="uppercase shadow-lg max-w-lg mx-auto my-10 text-[#BDA68C]"
                 overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center"
             >
-                <h2 className="text-xl font-semibold mb-4">Ustawienia Aplikacji</h2>
-                <form>
-                    <div className="mb-4">
-                    </div>
-                    <div className="flex items-center mb-4">
-                        <label className="block text-gray-700 font-medium mb-1">
-                            Testowy serwer:
-                        </label>
-                        <input
-                            type="checkbox"
-                            name="test_server"
-                            checked={settings.test_server}
-                            onChange={handleChange}
-                            className="h-4 w-4 text-blue-600 border-gray-300 rounded ml-4"
-                        />
-                    </div>
-                    <div className="flex justify-end space-x-4 mt-6">
-                        <button
-                            type="button"
-                            onClick={handleSaveSettings}
-                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        >
-                            Zapisz
-                        </button>
-                        <button
-                            type="button"
-                            onClick={closeModal}
-                            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                        >
-                            Anuluj
-                        </button>
-                    </div>
-                </form>
+                <div className="relative bg-[#191b28] w-[33.4rem] h-[25rem]">
+                    <div className='absolute bg-settings_bg opacity-20 w-full h-full bg-no-repeat bg-top z-0 pointer-events-none'></div>
+                        <div className="opacity-100 w-full h-full border-0 bg-contain bg-no-repeat bg-settings_frame z-10">
+
+
+                            <form>
+                                <div className="flex flex-col items-center mb-4">
+                                    <div className="my-10 text-2xl ">Ustawienia</div>
+                                    <div>
+                                        <div className='flex flex-row '>
+                                            <label className="block mb-1 italic">
+                                                Testowy serwer:
+                                            </label>
+                                            <input
+                                                type="checkbox"
+                                                name="test_server"
+                                                checked={settings.test_server}
+                                                onChange={handleChange}
+                                                className="h-4 w-4 border-gray-300 rounded ml-4 mt-1 items-center justify-center "
+                                            />
+                                        </div>
+
+                                        <div className='flex flex-row'>
+                                            <label className="block mb-1 italic">
+                                                Razor Enhanced:
+                                            </label>
+                                            <input
+                                                type="checkbox"
+                                                name="razor"
+                                                checked={settings.razor}
+                                                onChange={handleChange}
+                                                className="h-4 w-4 border-gray-300 rounded ml-4 mt-1 items-center justify-center "
+                                            />
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div className="flex items-center justify-center space-x-4 mt-20">
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveSettings}
+                                        className="px-12 py-4 bg-transparent border-[1px] rounded-sm border-[#BDA68C] text-[#BDA68C]  hover:bg-[#BDA68C] hover:text-[#544232]"
+                                    >
+                                        Zapisz
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={closeModal}
+                                        className="px-12 py-4 bg-transparent border-[1px] rounded-sm border-[#BDA68C] text-[#BDA68C]  hover:bg-[#BDA68C] hover:text-[#544232]"
+                                    >
+                                        Anuluj
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    {/* </div> */}
+                </div>
+
             </Modal>
         </div>
     );

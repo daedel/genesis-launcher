@@ -30,7 +30,10 @@ pub async fn download_files(files: Vec<String>, app_handle: tauri::AppHandle) ->
     let window = app_handle.get_window("main").unwrap();
        // Pobranie całkowitej wielkości zawartości (jeśli jest dostępna)
     let total_size = response.content_length().unwrap_or(0);
-    println!("Rozmiar pliku: {} bajtów", total_size);
+    let total_size_mb = format!("{:.2} MB", total_size as f64 / 1_048_576.0);
+    println!("{}", total_size_mb);
+    window.emit("download_size", total_size_mb).map_err(|e| e.to_string())?;
+
 
     let mut stream = response.bytes_stream();
     let mut downloaded: u64 = 0;
@@ -50,8 +53,12 @@ pub async fn download_files(files: Vec<String>, app_handle: tauri::AppHandle) ->
         let percentage = ((downloaded as f64 / total_size as f64) * 100.0) as i32;
         let elapsed_time = start_time.elapsed().as_secs_f64();
 
-        let speed = downloaded as f64 / elapsed_time / 1_048_576.0; // prędkość w KB/s
+        let speed = downloaded as f64 / elapsed_time / 1_048_576.0; // speed in MB/s
         
+        // Calculate estimated time left
+        let remaining_bytes = total_size - downloaded;
+        let time_left_secs = remaining_bytes as f64 / (speed * 1_048_576.0);
+        let time_left = format!("{:.0} seconds", time_left_secs);
 
         if percentage > current_percentage {
             window.emit("downloadProgress", percentage).map_err(|e| e.to_string())?;
@@ -60,12 +67,16 @@ pub async fn download_files(files: Vec<String>, app_handle: tauri::AppHandle) ->
             window.emit("download_speed", formatted_speed).map_err(|e| e.to_string())?;
             current_percentage = percentage;
 
-            // Wyświetl informacje o postępie
+            // Display progress information
             log_debug(format!(
-                "Pobrano: {} bajtów ({:.2}%), Prędkość: {:.2} KB/s",
-                downloaded, percentage, speed
+                "Downloaded: {} bytes ({:.2}%), Speed: {:.2} MB/s, Time left: {}",
+                downloaded, percentage, speed, time_left
             ));
+            window.emit("time_left", time_left).map_err(|e| e.to_string())?;
+
         }
+        // can you add here variable that contains time left base on curernt speed?
+        
 
         
     }

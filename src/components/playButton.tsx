@@ -7,6 +7,7 @@ import readGameSettings from "../utils/settings";
 import { BaseDirectory, exists } from "@tauri-apps/api/fs";
 import { GAME_FOLDER } from "../utils/consts";
 import { useLoading } from "../contexts/Loading";
+import StatusFrame from "./statusFrame";
 
 // write state expresion from react for file status
 
@@ -26,9 +27,23 @@ function PlayButton() {
     const [completed, setCompleted] = useState(0);
     const [status, setStatus] = useState("");
     const [downloadInfo, setDownloadInfo] = useState("");
+    const [isHovered, setIsHovered] = useState(false);
+    const [downloadSpeed, setDownloadSpeed] = useState("");
+    const [downloadSize, setDownloadSize] = useState("");
+    const [timeLeft, setTimeLeft] = useState("");
+
     const { startLoading, stopLoading } = useLoading();
 
-    
+    // Funkcje do obsługi najechania i opuszczenia przycisku
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+        // Możesz tutaj np. symulować aktualizację danych o pobieraniu
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+    };
+
     useEffect(() => {
         const unlisten1 = listen<string>('updateStatus', (event) => {
             setStatus(event.payload);
@@ -42,9 +57,26 @@ function PlayButton() {
             setCompleted(event.payload);
         });
 
+        const unlisten5 = listen<string>('download_speed', (event) => {
+            setDownloadSpeed(event.payload);
+
+        });
+
+        const unlisten6 = listen<string>('download_size', (event) => {
+            setDownloadSize(event.payload);
+
+        });
+
+        const unlisten7 = listen<string>('time_left', (event) => {
+            setTimeLeft(event.payload);
+
+        });
+
         const unlisten4 = listen<string>('console', (event) => {
             console.log(event.payload);
         });
+
+
 
         const initial_status = async () => {
             try {
@@ -61,6 +93,10 @@ function PlayButton() {
             unlisten2.then(f => f());
             unlisten3.then(f => f());
             unlisten4.then(f => f());
+            unlisten5.then(f => f());
+            unlisten6.then(f => f());
+            unlisten7.then(f => f());
+
 
 
         };
@@ -114,11 +150,15 @@ function PlayButton() {
 
     }
 
+    const canShowStatusFrame = () => {
+        return isHovered && downloadSpeed;
+    }
+
     return (
-        <div className="block mt-5 mb z-0">
+        <div className="block mt-0 mb z-0 relative">
             <div className="flex items-center justify-center">
                 <div className="w-72">
-                    <button type="submit" onClick={start_game} className="relative z-10 hover:scale-105 transition duration-500">
+                    <button type="submit" onClick={start_game} className="relative z-10 hover:scale-105 transition duration-500" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                         <img src={buttonImage}></img>
                         <div className="absolute w-[74%] h-[55%] -z-10 bg-play_bg m-auto top-0 bottom-0 left-0 right-0">
                             <div
@@ -132,6 +172,10 @@ function PlayButton() {
                     </button>
                 </div>
             </div>
+            {canShowStatusFrame() && (
+                <StatusFrame downloadSpeed={downloadSpeed} downloaded={downloadSize} timeLeft={timeLeft} />
+            )
+            }
         </div>
     )
 }

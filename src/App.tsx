@@ -1,30 +1,30 @@
 // import { useState } from "react";
 
 import "./output.css";
+import "./App.css";
 import Banner from "./components/banner";
 import Nav from "./components/nav/Nav";
 import PlayButton from "./components/playButton";
-import SettingsModal from "./components/settingsModal";
-import StatusFrame from "./components/statusFrame";
-import Spinner from "./components/Spinner";
 import { LoadingProvider } from "./contexts/Loading";
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import TopBar from "./components/TopBar";
 
 
 
 function App() {
 
   return (
-    <div className="flex flex-col text-center bg-[#191b28] h-screen w-full">
-      <LoadingProvider>
-        <Banner />
-        <Nav />
-        <PlayButton />
-        <SettingsModal />
-        <Spinner />
-        <StatusFrame />
-      </LoadingProvider>
-
+    <div className="bg-[#191b28]">
+      <div className="border-0 bg-contain bg-no-repeat bg-window_frame z-[9999]">
+        <div className="flex flex-col text-center h-screen w-full border-0 px-[0.18rem]">
+          <TopBar />
+          <LoadingProvider>
+            <Banner />
+            <Nav />
+            <PlayButton />
+          </LoadingProvider>
+        </div>
+      </div>
     </div>
   );
 }

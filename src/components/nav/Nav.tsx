@@ -1,6 +1,8 @@
 import NavLink from "./NavLink";
+import wiki_icon from "../../assets/wiki_icon.svg";
+import discord_icon from "../../assets/discord_icon.svg";
+import forum_icon from "../../assets/forum_icon.svg";
 
-import {discrod_svg_path} from "../../assets/svgs";
 
 
 function NavSeparator(){
@@ -13,14 +15,14 @@ function NavSeparator(){
 function Nav() {
 
     return (
-        <div className="py-5 px-28">
+        <div className="py-0 px-48">
             <nav className="block">
                 <div className="flex items-center justify-between">
-                    <NavLink navText={"Wiki"} navLink={"https://genesis.presb.pl/"}/>
+                    <NavLink navText={"Wiki"} navLink={"https://genesis.presb.pl/"} navIcon={wiki_icon}/>
                     <NavSeparator/>
-                    <NavLink navText={"Discord"} navLink={"https://genesis.presb.pl/"} navIcon={discrod_svg_path}/>
+                    <NavLink navText={"Discord"} navLink={"https://genesis.presb.pl/"} navIcon={discord_icon}/>
                     <NavSeparator/>
-                    <NavLink navText={"Forum"} navLink={"https://genesis.presb.pl/"}/>
+                    <NavLink navText={"Forum"} navLink={"https://genesis.presb.pl/"} navIcon={forum_icon}/>
                 </div>
 
             </nav>
