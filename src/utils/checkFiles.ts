@@ -43,7 +43,7 @@ class GameFileChecker {
 
         await invoke("download_files", { files: filesToUpdate });
 
-        this.updateStatus("Gotowe");
+        this.updateStatus("Graj");
         this.updateDownloadInfo("");
         await emit('download_speed', '');
 
