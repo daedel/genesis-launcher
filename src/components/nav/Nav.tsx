@@ -7,9 +7,7 @@ import forum_icon from "../../assets/forum_icon.svg";
 
 function NavSeparator(){
     return (
-        <div className="bg-[#544232] w-px h-5">
-
-        </div>
+        <div className="pl-[1px] mx-3 bg-[#544232] w-[0px] h-5 z-1000"></div>
     )
 }
 function Nav() {
@@ -17,7 +15,7 @@ function Nav() {
     return (
         <div className="py-0 px-48">
             <nav className="block">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-center">
                     <NavLink navText={"Wiki"} navLink={"https://genesis.presb.pl/"} navIcon={wiki_icon}/>
                     <NavSeparator/>
                     <NavLink navText={"Discord"} navLink={"https://genesis.presb.pl/"} navIcon={discord_icon}/>
