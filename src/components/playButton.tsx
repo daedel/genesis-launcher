@@ -174,10 +174,12 @@ function PlayButton() {
                     </button>
                 </div>
             </div>
+            <div className="h-[12rem]">
             {canShowStatusFrame() && (
                 <StatusFrame downloadSpeed={downloadSpeed} downloaded={downloadSize} timeLeft={timeLeft} />
             )
             }
+            </div>
         </div>
     )
 }
