@@ -16,7 +16,7 @@ function App() {
   return (
     <div className="bg-[#191b28] w-[715px]">
       {/* <div className="border-0 bg-contain bg-no-repeat bg-window_frame z-[9999] w-full"> */}
-        <div className="flex flex-col text-center h-screen w-full border-0 px-[0.18rem]">
+        <div className="flex flex-col text-center h-screen w-full border-0">
           <TopBar />
           <LoadingProvider>
             <Banner />
