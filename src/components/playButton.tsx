@@ -159,7 +159,7 @@ function PlayButton() {
     return (
         <div className="block mt-0 mb z-0 relative">
             <div className="flex items-center justify-center">
-                <div className="w-72">
+                <div className="w-[230px]">
                     <button type="submit" onClick={start_game} className="relative z-10 hover:scale-105 transition duration-500" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                         <img src={buttonImage}></img>
                         <div className="absolute w-[74%] h-[55%] -z-10 bg-play_bg m-auto top-0 bottom-0 left-0 right-0">
@@ -174,12 +174,10 @@ function PlayButton() {
                     </button>
                 </div>
             </div>
-            <div className="h-[12rem]">
             {canShowStatusFrame() && (
                 <StatusFrame downloadSpeed={downloadSpeed} downloaded={downloadSize} timeLeft={timeLeft} />
             )
             }
-            </div>
         </div>
     )
 }

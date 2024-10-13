@@ -31,12 +31,8 @@
     "windows": [
       {
         "title": "Ultima Online Genesis - Launcher",
-        "width": 845,
-        "height": 598,
-        "minHeight": 598,
-        "minWidth": 845,
-        "maxHeight": 598,
-        "maxWidth": 845,
+        "width": 715,
+        "height": 505,
         "resizable": false,
         "decorations": false
       }

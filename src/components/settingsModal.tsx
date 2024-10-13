@@ -85,61 +85,59 @@ function SettingsModal({ isOpen, setModalOpen }: SettingsModalProps) {
                 className="uppercase shadow-lg max-w-lg mx-auto my-10 text-[#BDA68C]"
                 overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center"
             >
-                <div className="relative bg-[#191b28] w-[33.4rem] h-[25rem]">
+                <div className="relative bg-[#191b28] w-[350px] h-[263px]">
                     <div className='absolute bg-settings_bg opacity-20 w-full h-full bg-no-repeat bg-top z-0 pointer-events-none'></div>
-                        <div className="opacity-100 w-full h-full border-0 bg-contain bg-no-repeat bg-settings_frame z-10">
-
-
-                            <form>
-                                <div className="flex flex-col items-center mb-4">
-                                    <div className="my-10 text-2xl ">Ustawienia</div>
-                                    <div>
-                                        <div className='flex flex-row '>
-                                            <label className="block mb-1 italic">
-                                                Testowy serwer:
-                                            </label>
-                                            <input
-                                                type="checkbox"
-                                                name="test_server"
-                                                checked={settings.test_server}
-                                                onChange={handleChange}
-                                                className="h-4 w-4 border-gray-300 rounded ml-4 mt-1 items-center justify-center "
-                                            />
-                                        </div>
-
-                                        <div className='flex flex-row'>
-                                            <label className="block mb-1 italic">
-                                                Razor Enhanced:
-                                            </label>
-                                            <input
-                                                type="checkbox"
-                                                name="razor"
-                                                checked={settings.razor}
-                                                onChange={handleChange}
-                                                className="h-4 w-4 border-gray-300 rounded ml-4 mt-1 items-center justify-center "
-                                            />
-                                        </div>
+                    <div className="opacity-100 w-full h-full border-0 bg-contain bg-no-repeat bg-settings_frame z-10">
+                        <form>
+                            <div className="flex flex-col items-center mb-4">
+                                <div className="my-10 text-xl ">Ustawienia</div>
+                                <div>
+                                    <div className='flex flex-row '>
+                                        <label className="block w-[140px] mb-1 text-sm italic">
+                                            Testowy serwer:
+                                        </label>
+                                        <input
+                                            type="checkbox"
+                                            name="test_server"
+                                            checked={settings.test_server}
+                                            onChange={handleChange}
+                                            className="h-4 w-4 border-gray-300 rounded ml-4 items-center justify-center "
+                                        />
                                     </div>
 
+                                    <div className='flex flex-row'>
+                                        <label className="block w-[140px] mb-1 text-sm italic">
+                                            Razor Enhanced:
+                                        </label>
+                                        <input
+                                            type="checkbox"
+                                            name="razor"
+                                            checked={settings.razor}
+                                            onChange={handleChange}
+                                            className="h-4 w-4 border-gray-300 rounded ml-4 items-center justify-center "
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex items-center justify-center space-x-4 mt-20">
-                                    <button
-                                        type="button"
-                                        onClick={handleSaveSettings}
-                                        className="px-12 py-4 bg-transparent border-[1px] rounded-sm border-[#BDA68C] text-[#BDA68C]  hover:bg-[#BDA68C] hover:text-[#544232]"
-                                    >
-                                        Zapisz
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={closeModal}
-                                        className="px-12 py-4 bg-transparent border-[1px] rounded-sm border-[#BDA68C] text-[#BDA68C]  hover:bg-[#BDA68C] hover:text-[#544232]"
-                                    >
-                                        Anuluj
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+
+                            </div>
+                            <div className="flex items-center justify-center space-x-4 mt-10">
+                                <button
+                                    type="button"
+                                    onClick={handleSaveSettings}
+                                    className="px-8 py-2 bg-transparent border-[1px] rounded-sm border-[#BDA68C] text-[#BDA68C]  hover:bg-[#BDA68C] hover:text-[#544232]"
+                                >
+                                    Zapisz
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    className="px-8 py-2 bg-transparent border-[1px] rounded-sm border-[#BDA68C] text-[#BDA68C]  hover:bg-[#BDA68C] hover:text-[#544232]"
+                                >
+                                    Anuluj
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                     {/* </div> */}
                 </div>
 
