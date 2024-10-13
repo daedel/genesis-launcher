@@ -26,6 +26,17 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true
       }
     },
     "windows": [
@@ -33,8 +44,8 @@
         "title": "Ultima Online Genesis - Launcher",
         "width": 715,
         "height": 505,
-        "resizable": true,
-        "decorations": false
+        "resizable": false,
+        "decorations": true
       }
     ],
     "security": {
