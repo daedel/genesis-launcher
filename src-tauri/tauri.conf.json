@@ -33,7 +33,7 @@
         "title": "Ultima Online Genesis - Launcher",
         "width": 715,
         "height": 505,
-        "resizable": false,
+        "resizable": true,
         "decorations": false
       }
     ],
