@@ -3,7 +3,8 @@
 
 use files::get_game_folder_path_buf;
 use logging::log_debug;
-use tauri::{Manager, CustomMenuItem, SystemTray, SystemTrayMenu, SystemTrayMenuItem, SystemTrayEvent};
+use sha2::digest::consts::False;
+use tauri::{Manager, CustomMenuItem, SystemTray, SystemTrayMenu, SystemTrayMenuItem, SystemTrayEvent, PhysicalSize};
 use std::fs::File;
 use sha2::{Sha256, Digest};
 use tauri;
@@ -94,8 +95,16 @@ fn main() {
 
   let system_tray = SystemTray::new()
     .with_menu(tray_menu);
-
   tauri::Builder::default()
+    .setup(|app| {
+      let main_window = app.get_window("main").unwrap();
+      let scale_factor = main_window.scale_factor().unwrap();
+      println!("inner_size {:?}", main_window.inner_size());
+      println!("scale_factor {:?}", main_window.scale_factor());
+      main_window.set_size(PhysicalSize::new((715.0 * scale_factor) as u32, (505.0 * scale_factor) as u32)).unwrap();
+      main_window.set_decorations(false);
+      Ok(())
+    })
   .system_tray(system_tray)
   .on_system_tray_event(|app, event| match event {
     SystemTrayEvent::MenuItemClick { id, .. } => {
