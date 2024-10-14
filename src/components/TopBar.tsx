@@ -20,7 +20,7 @@ function TopBar() {
 
 
     return (
-        <div data-tauri-drag-region className="flex justify-end items-end h-[45px] px-4 z-10 mr-5 border-0">
+        <div className="flex justify-end items-end h-[45px] px-4 z-10 mr-5 border-0">
             <button
                 onClick={handleSettings}
                 className="ml-2 bg-settings_icon bg-cover h-[30px] w-[30px] hover:bg-settings_icon_hv" />

@@ -3,7 +3,7 @@
 
 use files::get_game_folder_path_buf;
 use logging::log_debug;
-use sha2::digest::consts::False;
+use tauri::LogicalSize;
 use tauri::{Manager, CustomMenuItem, SystemTray, SystemTrayMenu, SystemTrayMenuItem, SystemTrayEvent, PhysicalSize};
 use std::fs::File;
 use sha2::{Sha256, Digest};
@@ -100,8 +100,13 @@ fn main() {
       let main_window = app.get_window("main").unwrap();
       let scale_factor = main_window.scale_factor().unwrap();
       println!("inner_size {:?}", main_window.inner_size());
+      println!("outer_size {:?}", main_window.outer_size());
+
       println!("scale_factor {:?}", main_window.scale_factor());
-      main_window.set_size(PhysicalSize::new((715.0 * scale_factor) as u32, (505.0 * scale_factor) as u32)).unwrap();
+      main_window.set_size(LogicalSize::new(715, 505));
+      println!("inner_size {:?}", main_window.inner_size());
+      println!("outer_size {:?}", main_window.outer_size());
+
       main_window.set_decorations(false);
       Ok(())
     })
