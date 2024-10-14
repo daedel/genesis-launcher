@@ -28,16 +28,16 @@ function App() {
       return;
     }
     let dimensions = appContainer.getBoundingClientRect();
-    const width = dimensions.width;
-    // const height = dimensions.height;
+    let width = dimensions.width;
+    let height = dimensions.height;
 
-    while (width < targetWidth || iterations > 10) {
+    while (width < targetWidth && iterations < 10) {
       iterations += 1;
       dimensions = appContainer.getBoundingClientRect();
       console.log('Width:', dimensions.width);
       console.log('Height:', dimensions.height);
-      const width = dimensions.width;
-      const height = dimensions.height;
+      width = dimensions.width;
+      height = dimensions.height;
 
       const scaleFactor = await appWindow.scaleFactor();
       const currentSize = (await appWindow.innerSize()).toLogical(scaleFactor);
