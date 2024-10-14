@@ -35,14 +35,19 @@ function App() {
 
     const fixWindowSize = async () => {
       console.log('Sprawdzam rozmiar diva');
-      const currentSize = await appWindow.innerSize();
+      const scaleFactor = await appWindow.scaleFactor();
+      const currentSize = (await appWindow.innerSize()).toLogical(scaleFactor);
       console.log('currentSize: ', currentSize);
       console.log('width: ',width, ' height: ', height);
 
       const w_diff = currentSize.width - width;
       const h_diff = currentSize.height - height;
       if (w_diff > 0 && width > 0 || h_diff > 0 && height > 0) {
-        await handleScaleChange(currentSize.width + w_diff, currentSize.height + h_diff);
+        const scaleDiffWidth = (width * 100) /currentSize.width;
+        const scaleDiffHeight = (height * 100) /currentSize.height;
+        console.log('Roznica scaleDiffWidth: ', scaleDiffWidth);
+        console.log('Roznica scaleDiffHeight: ', scaleDiffHeight);
+        await handleScaleChange(currentSize.width + (currentSize.width * scaleDiffWidth), currentSize.height + (currentSize.height * scaleDiffHeight));
       }
     }
     fixWindowSize();
