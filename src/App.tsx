@@ -9,7 +9,7 @@ import { LoadingProvider } from "./contexts/Loading";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import TopBar from "./components/TopBar";
 import { appWindow, LogicalSize } from '@tauri-apps/api/window';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 
 
