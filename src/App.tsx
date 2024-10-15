@@ -33,22 +33,24 @@ function App() {
 
     while (width < targetWidth && iterations < 10) {
       iterations += 1;
+      
+
+      const scaleFactor = await appWindow.scaleFactor();
+      const currentSize = (await appWindow.innerSize()).toLogical(scaleFactor);
+      console.log('current_size: ', currentSize);
+      const w_diff = currentSize.width - width;
+      const h_diff = currentSize.height - height;
+      if (w_diff > 0 && width > 0 || h_diff > 0 && height > 0) {
+        await handleScaleChange(currentSize.width + w_diff, currentSize.height + h_diff);
+      }
       dimensions = appContainer.getBoundingClientRect();
       console.log('Width:', dimensions.width);
       console.log('Height:', dimensions.height);
       width = dimensions.width;
       height = dimensions.height;
 
-      const scaleFactor = await appWindow.scaleFactor();
-      const currentSize = (await appWindow.innerSize()).toLogical(scaleFactor);
-      const w_diff = currentSize.width - width;
-      const h_diff = currentSize.height - height;
-      if (w_diff > 0 && width > 0 || h_diff > 0 && height > 0) {
-        await handleScaleChange(currentSize.width + w_diff, currentSize.height + h_diff);
-      }
       console.log('iterations: ', iterations);
-
-
+      console.log('');
     }
   };
     // Function handling scale change (DPI)
