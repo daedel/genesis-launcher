@@ -80,8 +80,15 @@ async fn get_files_in_game_folder(app_handle: tauri::AppHandle) -> Result<Vec<St
     Ok(files)
 }
 
+#[cfg(windows)]
+extern crate winapi;
 
 fn main() {
+  #[cfg(target_os = "windows")]
+    unsafe {
+        winapi::um::shellscalingapi::SetProcessDpiAwareness(2);
+    }
+
   let quit = CustomMenuItem::new("quit".to_string(), "Quit");
   let hide = CustomMenuItem::new("hide".to_string(), "Hide");
   let show = CustomMenuItem::new("show".to_string(), "Show");

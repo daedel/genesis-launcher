@@ -25,6 +25,9 @@ zip = "0.6"
 futures = "0.3"
 tokio-util = "0.7"
 
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.9", features = ["shellscalingapi"] }
+
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
