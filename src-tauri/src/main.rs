@@ -103,20 +103,6 @@ fn main() {
   let system_tray = SystemTray::new()
     .with_menu(tray_menu);
   tauri::Builder::default()
-    .setup(|app| {
-      let main_window = app.get_window("main").unwrap();
-      let scale_factor = main_window.scale_factor().unwrap();
-      println!("inner_size {:?}", main_window.inner_size());
-      println!("outer_size {:?}", main_window.outer_size());
-
-      println!("scale_factor {:?}", main_window.scale_factor());
-      main_window.set_size(LogicalSize::new(715, 505));
-      println!("inner_size {:?}", main_window.inner_size());
-      println!("outer_size {:?}", main_window.outer_size());
-
-      main_window.set_decorations(false);
-      Ok(())
-    })
   .system_tray(system_tray)
   .on_system_tray_event(|app, event| match event {
     SystemTrayEvent::MenuItemClick { id, .. } => {
