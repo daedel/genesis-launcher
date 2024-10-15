@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import GameFileChecker from "../utils/checkFiles";
 import readGameSettings from "../utils/settings";
-import { BaseDirectory, exists } from "@tauri-apps/api/fs";
+import { BaseDirectory, exists, readDir } from "@tauri-apps/api/fs";
 import { GAME_FOLDER } from "../utils/consts";
 import { useLoading } from "../contexts/Loading";
 import StatusFrame from "./statusFrame";
@@ -109,6 +109,10 @@ function PlayButton() {
             return ButtonStatus.Install
         };
 
+        const gameFiles = await readDir(GAME_FOLDER, { dir: BaseDirectory.AppData});
+        if(gameFiles.length === 0) {
+            return ButtonStatus.Install
+        }
         return ButtonStatus.Play;
     }
 
@@ -140,7 +144,7 @@ function PlayButton() {
 
             console.log('test_server', test_server);
             try {
-                await invoke("run_game", { testServer: test_server, razor: razor});
+                await invoke("run_game", { testServer: test_server, razor: razor });
             } catch (error) {
                 console.error('Error running game:', error);
                 setStatus("Błąd podczas uruchamiania gry");

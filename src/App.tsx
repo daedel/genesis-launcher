@@ -1,5 +1,3 @@
-// import { useState } from "react";
-
 import "./output.css";
 import "./App.css";
 import Banner from "./components/banner";
@@ -10,7 +8,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import TopBar from "./components/TopBar";
 import { appWindow, LogicalSize } from '@tauri-apps/api/window';
 import { useEffect } from 'react';
-
+import Footer from "./components/Footer";
 
 
 function App() {
@@ -22,14 +20,15 @@ function App() {
   };
 
   const setCorrectWindowSize = async () => {
-    const appContainer = document.getElementById('main-div');
+    const appContainer = document.getElementById('root');
     if (!appContainer) {
       return;
     }
     let dimensions = appContainer.getBoundingClientRect();
     let width = dimensions.width;
     let height = dimensions.height;
-
+    console.log('width: ', width);
+    console.log('height: ', height);
     const scaleFactor = await appWindow.scaleFactor();
     const currentSize = (await appWindow.innerSize()).toLogical(scaleFactor);
     console.log('current_size: ', currentSize);
@@ -49,18 +48,21 @@ function App() {
   }, []);
 
   return (
-    <div id="main-div" className="bg-[#191b28] w-screen h-screen">
-      {/* <div className="border-0 bg-contain bg-no-repeat bg-window_frame z-[9999] w-full"> */}
+    <div id="main-div" className="relative bg-[#191b28] w-screen h-screen">
+      <div className="absolute border-0 bg-contain bg-no-repeat bg-window_frame z-[9999] w-full h-full pointer-events-none">
+      </div>
       <div className="flex flex-col text-center h-screen w-full">
         <TopBar />
         <LoadingProvider>
           <Banner />
           <Nav />
           <PlayButton />
+          <Footer />
         </LoadingProvider>
       </div>
+
     </div>
-    // </div>
+
   );
 }
 

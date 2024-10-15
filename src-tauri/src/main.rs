@@ -3,7 +3,6 @@
 
 use files::get_game_folder_path_buf;
 use logging::log_debug;
-use tauri::LogicalSize;
 use tauri::{Manager, CustomMenuItem, SystemTray, SystemTrayMenu, SystemTrayMenuItem, SystemTrayEvent, PhysicalSize};
 use std::fs::File;
 use sha2::{Sha256, Digest};
