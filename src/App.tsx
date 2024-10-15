@@ -9,7 +9,7 @@ import TopBar from "./components/TopBar";
 import { appWindow, LogicalSize } from '@tauri-apps/api/window';
 import { useEffect } from 'react';
 import Footer from "./components/Footer";
-
+import windowFrame from "./assets/window-frame.png";
 
 function App() {
 
@@ -49,8 +49,8 @@ function App() {
 
   return (
     <div id="main-div" className="relative bg-[#191b28] w-screen h-screen">
-      <div className="absolute border-0 bg-contain bg-no-repeat bg-window_frame z-[9999] w-full h-full pointer-events-none">
-      </div>
+      {/* <div className="absolute border-0 bg-contain bg-no-repeat bg-window_frame z-[9999] w-full h-full pointer-events-none"> */}
+      {/* </div> */}
       <div className="flex flex-col text-center h-screen w-full">
         <TopBar />
         <LoadingProvider>
@@ -60,6 +60,8 @@ function App() {
           <Footer />
         </LoadingProvider>
       </div>
+      <img src={windowFrame} className="absolute top-0 left-0 w-full h-full object-fill pointer-events-none z-1000"></img>
+
 
     </div>
 
